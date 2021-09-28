@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/order/order",
     "pages/tips/tips",
-    "pages/my/my"
+    "pages/my/my",
+    "components/Header/Header"
   ],
   "subPackages": [],
   "window": {

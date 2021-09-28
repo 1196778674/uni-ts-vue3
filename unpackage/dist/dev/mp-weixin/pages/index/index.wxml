@@ -1,1 +1,1 @@
-<view class="_div">{{state.title}}</view>
+<view class="container"><v-header vue-id="8dd740cc-1" title="{{state.title}}" bind:__l="__l"></v-header></view>

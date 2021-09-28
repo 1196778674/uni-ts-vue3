@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "",
+  "enablePullDownRefresh": false,
+  "usingComponents": {
+    "uni-sticky": "/components/Header/uni-sticky/uni-sticky"
+  }
+}

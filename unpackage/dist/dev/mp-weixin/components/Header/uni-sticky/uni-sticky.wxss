@@ -1,0 +1,11 @@
+
+.weui-sticky {
+  position: relative;
+}
+.weui-sticky__fixed {
+  position: fixed;
+  width: 100%;
+  left: 0;
+  top: 0;
+}
+
