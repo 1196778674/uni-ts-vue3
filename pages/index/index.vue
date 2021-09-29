@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-	import { defineComponent, reactive, toRefs } from 'vue';
+	import { defineComponent, reactive, onBeforeMount } from 'vue';
 	import VHeader from "../../components/Header/Header"
 	import UniTabs from '../../components/uni-tabs/uni-tabs.vue'
 	import UniMap from '../../components/uni-map/uni-map.vue'
@@ -45,10 +45,42 @@
 				console.log(current)
 			}
 			
+			// 获取用户信息
+			onBeforeMount(() => {
+				// 获取微信信息
+				uni.getUserInfo({
+					provider:"weixin",
+					success: (res) => {
+						console.log(res)
+					}
+				})
+				// 校验是否登录
+				uni.request({
+					url: "/test/login",
+					method:"GET",
+					success: (res) => {
+						console.log(res)
+					},
+					fail: (err) => {
+						console.log(err)
+						toLogin();
+					}
+				})
+			})
+			
+			// 登录
+			const toLogin = () => {
+				uni.navigateTo({
+					animationType: "auto",
+					url:'../login/login'
+				})
+			}
+			
 			return {
 				state,
 				props,
-				tabClick
+				tabClick,
+				toLogin
 			}
 		}
 		

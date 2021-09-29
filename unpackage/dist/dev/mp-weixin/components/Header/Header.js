@@ -114,7 +114,7 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = __webpack_require__(/*! vue */ 6);var UniSticky = function UniSticky() {__webpack_require__.e(/*! require.ensure | components/Header/uni-sticky/uni-sticky */ "components/Header/uni-sticky/uni-sticky").then((function () {return resolve(__webpack_require__(/*! ./uni-sticky/uni-sticky */ 50));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = __webpack_require__(/*! vue */ 6);var UniSticky = function UniSticky() {__webpack_require__.e(/*! require.ensure | components/Header/uni-sticky/uni-sticky */ "components/Header/uni-sticky/uni-sticky").then((function () {return resolve(__webpack_require__(/*! ./uni-sticky/uni-sticky */ 65));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
 
 (0, _vue.defineComponent)({
   name: 'Header',
@@ -161,7 +161,7 @@ __webpack_require__.r(__webpack_exports__);
 
 /***/ }),
 
-/***/ 42:
+/***/ 44:
 /*!*******************************************************************************************************!*\
   !*** /Users/liufei/Documents/HBuilderProjects/wx-app/main.js?{"page":"components%2FHeader%2FHeader"} ***!
   \*******************************************************************************************************/
@@ -177,5 +177,5 @@ createPage(_Header.default);
 
 /***/ })
 
-},[[42,"common/runtime","common/vendor"]]]);
+},[[44,"common/runtime","common/vendor"]]]);
 //# sourceMappingURL=../../../.sourcemap/mp-weixin/components/Header/Header.js.map

@@ -4,7 +4,8 @@
     "pages/order/order",
     "pages/tips/tips",
     "pages/my/my",
-    "components/Header/Header"
+    "components/Header/Header",
+    "pages/login/login"
   ],
   "subPackages": [],
   "window": {
