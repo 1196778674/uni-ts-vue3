@@ -10,8 +10,8 @@
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "冷运保",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "backgroundColor": "#FFFFFF"
   },
   "tabBar": {
     "color": "#333333",
@@ -45,6 +45,10 @@
       }
     ]
   },
-  "permission": {},
+  "permission": {
+    "scope.userLocation": {
+      "desc": "获取您的个人信息及位置"
+    }
+  },
   "usingComponents": {}
 }

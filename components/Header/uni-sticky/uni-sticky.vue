@@ -1,8 +1,8 @@
 <template>
-    <view class="weui-sticky" :style="'width: 100%;' + (fixed ? (`height: ${height}px; z-index: ${zIndex};`) : '')">
+    <view class="weui-sticky" :style="'width: 100%;' + (fixed ? (`height: ${height}px; z-index: ${zIndex}; padding-top: ${offsetTop}px`) : '')">
         <view
             :class="fixed ? 'weui-sticky__fixed' : ''"
-            :style="fixed ? (`top: ${offsetTop}px;`) : ''">
+			:style="fixed ? `top: ${offsetTop}px` : ''">
             <slot></slot>
         </view>
     </view>

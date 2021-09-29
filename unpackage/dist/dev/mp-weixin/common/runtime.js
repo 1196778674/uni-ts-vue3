@@ -105,11 +105,11 @@
 /******/
 /******/
 /******/ 		// mini-css-extract-plugin CSS loading
-/******/ 		var cssChunks = {"components/Header/uni-sticky/uni-sticky":1};
+/******/ 		var cssChunks = {"components/Header/uni-sticky/uni-sticky":1,"components/uni-tabs/uni-tabs":1};
 /******/ 		if(installedCssChunks[chunkId]) promises.push(installedCssChunks[chunkId]);
 /******/ 		else if(installedCssChunks[chunkId] !== 0 && cssChunks[chunkId]) {
 /******/ 			promises.push(installedCssChunks[chunkId] = new Promise(function(resolve, reject) {
-/******/ 				var href = "" + ({"components/Header/uni-sticky/uni-sticky":"components/Header/uni-sticky/uni-sticky"}[chunkId]||chunkId) + ".wxss";
+/******/ 				var href = "" + ({"components/Header/uni-sticky/uni-sticky":"components/Header/uni-sticky/uni-sticky","components/uni-map/uni-map":"components/uni-map/uni-map","components/uni-tabs/uni-tabs":"components/uni-tabs/uni-tabs"}[chunkId]||chunkId) + ".wxss";
 /******/ 				var fullhref = __webpack_require__.p + href;
 /******/ 				var existingLinkTags = document.getElementsByTagName("link");
 /******/ 				for(var i = 0; i < existingLinkTags.length; i++) {

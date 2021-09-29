@@ -18,7 +18,7 @@
 			title: String
 		},
 		setup(props){
-			return {
+			return { 
 				props
 			}
 		}
@@ -27,6 +27,11 @@
 
 <style>
 	.sticky {
+		position: absolute;
 	    text-align: center;
+		background-color: red;
+		left: 0;
+		bottom: 0;
+		right: 0;
 	}
 </style>

@@ -1,1 +1,1 @@
-<view class="container"><v-header vue-id="8dd740cc-1" title="{{state.title}}" bind:__l="__l"></v-header></view>
+<view class="container"><view style="width:60%;"><uni-tabs vue-id="8dd740cc-1" tabData="{{state.tabs}}" activeIndex="{{state.defaultIndex}}" data-event-opts="{{[['^tabClick',[['tabClick']]]]}}" bind:tabClick="__e" bind:__l="__l"></uni-tabs></view><view></view></view>

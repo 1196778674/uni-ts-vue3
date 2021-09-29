@@ -4,11 +4,12 @@
     "ignore": []
   },
   "setting": {
-    "urlCheck": false
+    "urlCheck": false,
+    "es6": true
   },
   "compileType": "miniprogram",
   "libVersion": "",
-  "appid": "touristappid",
+  "appid": "wx91606e26d7cf3de7",
   "projectname": "wx-app",
   "condition": {
     "search": {

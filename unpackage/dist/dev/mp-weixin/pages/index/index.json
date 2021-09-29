@@ -1,8 +1,11 @@
 {
-  "navigationBarTitleText": "冷运保",
+  "navigationBarTitleText": "app",
   "enablePullDownRefresh": false,
-  "navigationStyle": "custom",
+  "navigationBarBackgroundColor": "#007AFF",
+  "navigationBarTextStyle": "white",
   "usingComponents": {
-    "v-header": "/components/Header/Header"
+    "uni-tabs": "/components/uni-tabs/uni-tabs",
+    "v-header": "/components/Header/Header",
+    "uni-map": "/components/uni-map/uni-map"
   }
 }
