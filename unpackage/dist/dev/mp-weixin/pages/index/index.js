@@ -159,6 +159,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = __webpack_require__(/*! vue */ 6);
+var _index = _interopRequireDefault(__webpack_require__(/*! ../../store/index.js */ 88));
 var _Header = _interopRequireDefault(__webpack_require__(/*! ../../components/Header/Header */ 17));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var UniTabs = function UniTabs() {__webpack_require__.e(/*! require.ensure | components/uni-tabs/uni-tabs */ "components/uni-tabs/uni-tabs").then((function () {return resolve(__webpack_require__(/*! ../../components/uni-tabs/uni-tabs.vue */ 53));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var UniMap = function UniMap() {__webpack_require__.e(/*! require.ensure | components/uni-map/uni-map */ "components/uni-map/uni-map").then((function () {return resolve(__webpack_require__(/*! ../../components/uni-map/uni-map.vue */ 60));}).bind(null, __webpack_require__)).catch(__webpack_require__.oe);};var _default =
 
 
@@ -184,6 +185,12 @@ var _Header = _interopRequireDefault(__webpack_require__(/*! ../../components/He
     };
     // 获取用户信息
     (0, _vue.onBeforeMount)(function () {
+      // 获取系统信息
+      uni.getSystemInfo({
+        success: function success(res) {
+          _index.default.commit('setSystem', res);
+        } });
+
       // 获取微信信息
       uni.getUserInfo({
         provider: "weixin",

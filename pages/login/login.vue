@@ -14,6 +14,7 @@
 
 <script lang="ts">
 	import { reactive, ref, onBeforeMount } from "vue"
+	import $store from '../../store/index.js'
 	export default {
 		name: "Login",
 		
@@ -60,13 +61,8 @@
 			}
 			
 			onBeforeMount(() => {
-				uni.getSystemInfo({
-					success: (res) => {
-						safeArea.value = res.safeArea.height + 'px'
-					}
-				})
+				safeArea.value = $store.state.system.safeArea.height + 'px'
 			})
-			console.log(safeArea.value)
 			return {
 				formData,
 				safeArea,

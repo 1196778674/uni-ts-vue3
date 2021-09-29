@@ -81,7 +81,8 @@ __webpack_require__.r(__webpack_exports__);
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = __webpack_require__(/*! vue */ 6);var _default =
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;var _vue = __webpack_require__(/*! vue */ 6);
+var _index = _interopRequireDefault(__webpack_require__(/*! ../../store/index.js */ 88));function _interopRequireDefault(obj) {return obj && obj.__esModule ? obj : { default: obj };}var _default =
 {
   name: "Login",
   setup: function setup(props) {
@@ -122,13 +123,8 @@ __webpack_require__.r(__webpack_exports__);
       });
     };
     (0, _vue.onBeforeMount)(function () {
-      uni.getSystemInfo({
-        success: function success(res) {
-          safeArea.value = res.safeArea.height + 'px';
-        } });
-
+      safeArea.value = _index.default.state.system.safeArea.height + 'px';
     });
-    console.log(safeArea.value);
     return {
       formData: formData,
       safeArea: safeArea,

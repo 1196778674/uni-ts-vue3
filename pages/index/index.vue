@@ -11,6 +11,7 @@
 
 <script lang="ts">
 	import { defineComponent, reactive, onBeforeMount } from 'vue';
+	import $store from '../../store/index.js'
 	import VHeader from "../../components/Header/Header"
 	import UniTabs from '../../components/uni-tabs/uni-tabs.vue'
 	import UniMap from '../../components/uni-map/uni-map.vue'
@@ -47,6 +48,12 @@
 			
 			// 获取用户信息
 			onBeforeMount(() => {
+				// 获取系统信息
+				uni.getSystemInfo({
+					success: (res) => {
+						$store.commit('setSystem', res)
+					}
+				})
 				// 获取微信信息
 				uni.getUserInfo({
 					provider:"weixin",
@@ -75,6 +82,8 @@
 					url:'../login/login'
 				})
 			}
+			
+			
 			
 			return {
 				state,

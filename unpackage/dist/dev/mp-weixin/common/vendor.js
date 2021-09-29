@@ -1,6 +1,6 @@
-(global["webpackJsonp"] = global["webpackJsonp"] || []).push([["common/vendor"],[
-/* 0 */,
-/* 1 */
+(global["webpackJsonp"] = global["webpackJsonp"] || []).push([["common/vendor"],{
+
+/***/ 1:
 /*!******************************************************************!*\
   !*** /Users/liufei/Documents/HBuilderProjects/wx-app/pages.json ***!
   \******************************************************************/
@@ -10,10 +10,1203 @@
 
 
 /***/ }),
-/* 2 */,
-/* 3 */,
-/* 4 */,
-/* 5 */
+
+/***/ 10:
+/*!*****************************************************************!*\
+  !*** ./node_modules/@dcloudio/uni-mp-weixin/dist/uni.mp.esm.js ***!
+  \*****************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.createPage = exports.createComponent = exports.createApp = void 0;var _shared = __webpack_require__(/*! @vue/shared */ 8);
+var _vue = __webpack_require__(/*! vue */ 6);
+
+var encode = encodeURIComponent;
+function stringifyQuery(obj) {var encodeStr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : encode;
+  var res = obj ?
+  Object.keys(obj).
+  map(function (key) {
+    var val = obj[key];
+    if (typeof val === undefined || val === null) {
+      val = '';
+    } else
+    if ((0, _shared.isPlainObject)(val)) {
+      val = JSON.stringify(val);
+    }
+    return encodeStr(key) + '=' + encodeStr(val);
+  }).
+  filter(function (x) {return x.length > 0;}).
+  join('&') :
+  null;
+  return res ? "?".concat(res) : '';
+}
+
+function cache(fn) {
+  var cache = Object.create(null);
+  return function (str) {
+    var hit = cache[str];
+    return hit || (cache[str] = fn(str));
+  };
+}
+var invokeArrayFns = function invokeArrayFns(fns, arg) {
+  var ret;
+  for (var i = 0; i < fns.length; i++) {
+    ret = fns[i](arg);
+  }
+  return ret;
+};
+// lifecycle
+// App and Page
+var ON_SHOW = 'onShow';
+var ON_HIDE = 'onHide';
+//App
+var ON_LAUNCH = 'onLaunch';
+var ON_ERROR = 'onError';
+var ON_THEME_CHANGE = 'onThemeChange';
+var ON_PAGE_NOT_FOUND = 'onPageNotFound';
+var ON_UNHANDLE_REJECTION = 'onUnhandledRejection';
+//Page
+var ON_LOAD = 'onLoad';
+var ON_READY = 'onReady';
+var ON_UNLOAD = 'onUnload';
+var ON_RESIZE = 'onResize';
+var ON_TAB_ITEM_TAP = 'onTabItemTap';
+var ON_REACH_BOTTOM = 'onReachBottom';
+var ON_PULL_DOWN_REFRESH = 'onPullDownRefresh';
+var ON_ADD_TO_FAVORITES = 'onAddToFavorites';
+
+var eventChannels = {};
+var eventChannelStack = [];
+function getEventChannel(id) {
+  if (id) {
+    var eventChannel = eventChannels[id];
+    delete eventChannels[id];
+    return eventChannel;
+  }
+  return eventChannelStack.shift();
+}
+
+function initBehavior(options) {
+  return Behavior(options);
+}
+function initVueIds(vueIds, mpInstance) {
+  if (!vueIds) {
+    return;
+  }
+  var ids = vueIds.split(',');
+  var len = ids.length;
+  if (len === 1) {
+    mpInstance._$vueId = ids[0];
+  } else
+  if (len === 2) {
+    mpInstance._$vueId = ids[0];
+    mpInstance._$vuePid = ids[1];
+  }
+}
+var EXTRAS = ['externalClasses'];
+function initExtraOptions(miniProgramComponentOptions, vueOptions) {
+  EXTRAS.forEach(function (name) {
+    if ((0, _shared.hasOwn)(vueOptions, name)) {
+      miniProgramComponentOptions[name] = vueOptions[name];
+    }
+  });
+}
+function initWxsCallMethods(methods, wxsCallMethods) {
+  if (!(0, _shared.isArray)(wxsCallMethods)) {
+    return;
+  }
+  wxsCallMethods.forEach(function (callMethod) {
+    methods[callMethod] = function (args) {
+      return this.$vm[callMethod](args);
+    };
+  });
+}
+function selectAllComponents(mpInstance, selector, $refs) {
+  var components = mpInstance.selectAllComponents(selector);
+  components.forEach(function (component) {
+    var ref = component.dataset.ref;
+    $refs[ref] = component.$vm || component;
+    {
+      if (component.dataset.vueGeneric === 'scoped') {
+        component.
+        selectAllComponents('.scoped-ref').
+        forEach(function (scopedComponent) {
+          selectAllComponents(scopedComponent, selector, $refs);
+        });
+      }
+    }
+  });
+}
+function initRefs(instance, mpInstance) {
+  Object.defineProperty(instance, 'refs', {
+    get: function get() {
+      var $refs = {};
+      selectAllComponents(mpInstance, '.vue-ref', $refs);
+      var forComponents = mpInstance.selectAllComponents('.vue-ref-in-for');
+      forComponents.forEach(function (component) {
+        var ref = component.dataset.ref;
+        if (!$refs[ref]) {
+          $refs[ref] = [];
+        }
+        $refs[ref].push(component.$vm || component);
+      });
+      return $refs;
+    } });
+
+}
+function findVmByVueId(instance, vuePid) {
+  // 标准 vue3 中 没有 $children，定制了内核
+  var $children = instance.$children;
+  // 优先查找直属(反向查找:https://github.com/dcloudio/uni-app/issues/1200)
+  for (var i = $children.length - 1; i >= 0; i--) {
+    var childVm = $children[i];
+    if (childVm.$scope._$vueId === vuePid) {
+      return childVm;
+    }
+  }
+  // 反向递归查找
+  var parentVm;
+  for (var _i = $children.length - 1; _i >= 0; _i--) {
+    parentVm = findVmByVueId($children[_i], vuePid);
+    if (parentVm) {
+      return parentVm;
+    }
+  }
+}
+function getTarget(obj, path) {
+  var parts = path.split('.');
+  var key = parts[0];
+  if (key.indexOf('__$n') === 0) {
+    //number index
+    key = parseInt(key.replace('__$n', ''));
+  }
+  if (!obj) {
+    obj = {};
+  }
+  if (parts.length === 1) {
+    return obj[key];
+  }
+  return getTarget(obj[key], parts.slice(1).join('.'));
+}
+
+function getValue(dataPath, target) {
+  return getTarget(target || this, dataPath);
+}
+function getClass(dynamicClass, staticClass) {
+  return renderClass(staticClass, dynamicClass);
+}
+function getStyle(dynamicStyle, staticStyle) {
+  if (!dynamicStyle && !staticStyle) {
+    return '';
+  }
+  var dynamicStyleObj = normalizeStyleBinding(dynamicStyle);
+  var styleObj = staticStyle ?
+  (0, _shared.extend)(staticStyle, dynamicStyleObj) :
+  dynamicStyleObj;
+  return Object.keys(styleObj).
+  map(function (name) {
+    return (0, _shared.hyphenate)(name) + ':' + styleObj[name];
+  }).
+  join(';');
+}
+function toObject(arr) {
+  var res = {};
+  for (var i = 0; i < arr.length; i++) {
+    if (arr[i]) {
+      (0, _shared.extend)(res, arr[i]);
+    }
+  }
+  return res;
+}
+function normalizeStyleBinding(bindingStyle) {
+  if (Array.isArray(bindingStyle)) {
+    return toObject(bindingStyle);
+  }
+  if (typeof bindingStyle === 'string') {
+    return parseStyleText(bindingStyle);
+  }
+  return bindingStyle;
+}
+var parseStyleText = cache(function parseStyleText(cssText) {
+  var res = {};
+  var listDelimiter = /;(?![^(]*\))/g;
+  var propertyDelimiter = /:(.+)/;
+  cssText.split(listDelimiter).forEach(function (item) {
+    if (item) {
+      var tmp = item.split(propertyDelimiter);
+      tmp.length > 1 && (res[tmp[0].trim()] = tmp[1].trim());
+    }
+  });
+  return res;
+});
+function isDef(v) {
+  return v !== undefined && v !== null;
+}
+function renderClass(staticClass, dynamicClass) {
+  if (isDef(staticClass) || isDef(dynamicClass)) {
+    return concat(staticClass, stringifyClass(dynamicClass));
+  }
+  /* istanbul ignore next */
+  return '';
+}
+function concat(a, b) {
+  return a ? b ? a + ' ' + b : a : b || '';
+}
+function stringifyClass(value) {
+  if (Array.isArray(value)) {
+    return stringifyArray(value);
+  }
+  if ((0, _shared.isObject)(value)) {
+    return stringifyObject(value);
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  /* istanbul ignore next */
+  return '';
+}
+function stringifyArray(value) {
+  var res = '';
+  var stringified;
+  for (var i = 0, l = value.length; i < l; i++) {
+    if (isDef(stringified = stringifyClass(value[i])) && stringified !== '') {
+      if (res) {
+        res += ' ';
+      }
+      res += stringified;
+    }
+  }
+  return res;
+}
+function stringifyObject(value) {
+  var res = '';
+  for (var key in value) {
+    if (value[key]) {
+      if (res) {
+        res += ' ';
+      }
+      res += key;
+    }
+  }
+  return res;
+}
+
+function setModel(target, key, value, modifiers) {
+  if ((0, _shared.isArray)(modifiers)) {
+    if (modifiers.indexOf('trim') !== -1) {
+      value = value.trim();
+    }
+    if (modifiers.indexOf('number') !== -1) {
+      value = (0, _shared.toNumber)(value);
+    }
+  }
+  if (!target) {
+    target = this;
+  }
+  target[key] = value;
+}
+function setSync(target, key, value) {
+  if (!target) {
+    target = this;
+  }
+  target[key] = value;
+}
+function getOrig(data) {
+  if ((0, _shared.isPlainObject)(data)) {
+    return data.$orig || data;
+  }
+  return data;
+}
+function map(val, iteratee) {
+  var ret, i, l, keys, key;
+  if ((0, _shared.isArray)(val)) {
+    ret = new Array(val.length);
+    for (i = 0, l = val.length; i < l; i++) {
+      ret[i] = iteratee(val[i], i);
+    }
+    return ret;
+  } else
+  if ((0, _shared.isObject)(val)) {
+    keys = Object.keys(val);
+    ret = Object.create(null);
+    for (i = 0, l = keys.length; i < l; i++) {
+      key = keys[i];
+      ret[key] = iteratee(val[key], key, i);
+    }
+    return ret;
+  }
+  return [];
+}
+var MP_METHODS = [
+'createSelectorQuery',
+'createIntersectionObserver',
+'selectAllComponents',
+'selectComponent'];
+
+function createEmitFn(oldEmit, ctx) {
+  return function emit(event) {for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {args[_key - 1] = arguments[_key];}
+    if (ctx.$scope && event) {
+      ctx.$scope.triggerEvent(event, { __args__: args });
+    }
+    return oldEmit.apply(this, [event].concat(args));
+  };
+}
+function initBaseInstance(instance, options) {
+  var ctx = instance.ctx;
+  // mp
+  ctx.mpType = options.mpType; // @deprecated
+  ctx.$mpType = options.mpType;
+  ctx.$scope = options.mpInstance;
+  // TODO @deprecated
+  ctx.$mp = {};
+  if (true) {
+    ctx._self = {};
+  }
+  // $vm
+  ctx.$scope.$vm = instance.proxy;
+  // slots
+  {
+    instance.slots = {};
+    if ((0, _shared.isArray)(options.slots) && options.slots.length) {
+      options.slots.forEach(function (name) {
+        instance.slots[name] = true;
+      });
+    }
+  }
+  ctx.getOpenerEventChannel = function () {
+    // 微信小程序使用自身getOpenerEventChannel
+    {
+      return options.mpInstance.getOpenerEventChannel();
+    }
+  };
+  ctx.$hasHook = hasHook;
+  ctx.$callHook = callHook;
+  // $emit
+  instance.emit = createEmitFn(instance.emit, ctx);
+}
+function initComponentInstance(instance, options) {
+  initBaseInstance(instance, options);
+  {
+    initScopedSlotsParams(instance);
+  }
+  var ctx = instance.ctx;
+  MP_METHODS.forEach(function (method) {
+    ctx[method] = function () {
+      var mpInstance = ctx.$scope;
+      if (mpInstance && mpInstance[method]) {for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {args[_key2] = arguments[_key2];}
+        return mpInstance[method].apply(mpInstance, args);
+      }
+    };
+  });
+  // TODO other
+  ctx.__set_model = setModel;
+  ctx.__set_sync = setSync;
+  ctx.__get_orig = getOrig;
+  // TODO
+  ctx.__get_value = getValue;
+  ctx.__get_class = getClass;
+  ctx.__get_style = getStyle;
+  ctx.__map = map;
+}
+function initMocks(instance, mpInstance, mocks) {
+  var ctx = instance.ctx;
+  mocks.forEach(function (mock) {
+    if ((0, _shared.hasOwn)(mpInstance, mock)) {
+      ctx[mock] = mpInstance[mock];
+    }
+  });
+}
+function hasHook(name) {
+  var hooks = this.$[name];
+  if (hooks && hooks.length) {
+    return true;
+  }
+  return false;
+}
+function callHook(name, args) {
+  if (name === 'mounted') {
+    callHook.call(this, 'bm'); // beforeMount
+    this.$.isMounted = true;
+    name = 'm';
+  } else
+  if (name === 'onLoad' && args && args.__id__) {
+    this.__eventChannel__ = getEventChannel(args.__id__);
+    delete args.__id__;
+  }
+  var hooks = this.$[name];
+  return hooks && invokeArrayFns(hooks, args);
+}
+var center = {};
+var parents = {};
+function initScopedSlotsParams(instance) {
+  var ctx = instance.ctx;
+  ctx.$hasScopedSlotsParams = function (vueId) {
+    var has = center[vueId];
+    if (!has) {
+      parents[vueId] = this;
+      (0, _vue.onUnmounted)(function () {
+        delete parents[vueId];
+      }, instance);
+    }
+    return has;
+  };
+  ctx.$getScopedSlotsParams = function (vueId, name, key) {
+    var data = center[vueId];
+    if (data) {
+      var object = data[name] || {};
+      return key ? object[key] : object;
+    } else
+    {
+      parents[vueId] = this;
+      (0, _vue.onUnmounted)(function () {
+        delete parents[vueId];
+      }, instance);
+    }
+  };
+  ctx.$setScopedSlotsParams = function (name, value) {
+    var vueIds = instance.attrs.vueId;
+    if (vueIds) {
+      var vueId = vueIds.split(',')[0];
+      var object = center[vueId] = center[vueId] || {};
+      object[name] = value;
+      if (parents[vueId]) {
+        parents[vueId].$forceUpdate();
+      }
+    }
+  };
+  (0, _vue.onUnmounted)(function () {
+    var propsData = instance.attrs;
+    var vueId = propsData && propsData.vueId;
+    if (vueId) {
+      delete center[vueId];
+      delete parents[vueId];
+    }
+  }, instance);
+}
+
+var PAGE_HOOKS = [
+ON_LOAD,
+ON_SHOW,
+ON_HIDE,
+ON_UNLOAD,
+ON_RESIZE,
+ON_TAB_ITEM_TAP,
+ON_REACH_BOTTOM,
+ON_PULL_DOWN_REFRESH,
+ON_ADD_TO_FAVORITES
+// 'onReady', // lifetimes.ready
+// 'onPageScroll', // 影响性能，开发者手动注册
+// 'onShareTimeline', // 右上角菜单，开发者手动注册
+// 'onShareAppMessage' // 右上角菜单，开发者手动注册
+];
+function findHooks(vueOptions) {var hooks = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Set();
+  if (vueOptions) {
+    Object.keys(vueOptions).forEach(function (name) {
+      if (name.indexOf('on') === 0 && (0, _shared.isFunction)(vueOptions[name])) {
+        hooks.add(name);
+      }
+    });
+    if (true) {var
+      extendsOptions = vueOptions.extends,mixins = vueOptions.mixins;
+      if (mixins) {
+        mixins.forEach(function (mixin) {return findHooks(mixin, hooks);});
+      }
+      if (extendsOptions) {
+        findHooks(extendsOptions, hooks);
+      }
+    }
+  }
+  return hooks;
+}
+function initHook$1(mpOptions, hook, excludes) {
+  if (excludes.indexOf(hook) === -1 && !(0, _shared.hasOwn)(mpOptions, hook)) {
+    mpOptions[hook] = function (args) {
+      return this.$vm && this.$vm.$callHook(hook, args);
+    };
+  }
+}
+var EXCLUDE_HOOKS = [ON_READY];
+function initHooks(mpOptions, hooks) {var excludes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EXCLUDE_HOOKS;
+  hooks.forEach(function (hook) {return initHook$1(mpOptions, hook, excludes);});
+}
+function initUnknownHooks(mpOptions, vueOptions) {var excludes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EXCLUDE_HOOKS;
+  findHooks(vueOptions).forEach(function (hook) {return initHook$1(mpOptions, hook, excludes);});
+}
+
+wx.appLaunchHooks = [];
+function injectAppLaunchHooks(appInstance) {
+  wx.appLaunchHooks.forEach(function (hook) {
+    (0, _vue.injectHook)(ON_LAUNCH, hook, appInstance);
+  });
+}
+
+var HOOKS = [
+ON_SHOW,
+ON_HIDE,
+ON_ERROR,
+ON_THEME_CHANGE,
+ON_PAGE_NOT_FOUND,
+ON_UNHANDLE_REJECTION];
+
+function parseApp(instance, parseAppOptions) {
+  var internalInstance = instance.$;
+  var appOptions = {
+    globalData: instance.$options && instance.$options.globalData || {},
+    $vm: instance,
+    onLaunch: function onLaunch(options) {
+      var ctx = internalInstance.ctx;
+      if (this.$vm && ctx.$scope) {
+        // 已经初始化过了，主要是为了百度，百度 onShow 在 onLaunch 之前
+        return;
+      }
+      initBaseInstance(internalInstance, {
+        mpType: 'app',
+        mpInstance: this,
+        slots: [] });
+
+      injectAppLaunchHooks(internalInstance);
+      ctx.globalData = this.globalData;
+      instance.$callHook(ON_LAUNCH, (0, _shared.extend)({ app: this }, options));
+    } };
+
+  initLocale(instance);
+  var vueOptions = instance.$.type;
+  initHooks(appOptions, HOOKS);
+  initUnknownHooks(appOptions, vueOptions);
+  if (true) {
+    var methods = vueOptions.methods;
+    methods && (0, _shared.extend)(appOptions, methods);
+  }
+  if (parseAppOptions) {
+    parseAppOptions.parse(appOptions);
+  }
+  return appOptions;
+}
+function initCreateApp(parseAppOptions) {
+  return function createApp(vm) {
+    return App(parseApp(vm, parseAppOptions));
+  };
+}
+function initLocale(appVm) {
+  var locale = (0, _vue.ref)(uni.getSystemInfoSync().language || 'zh-Hans');
+  Object.defineProperty(appVm, '$locale', {
+    get: function get() {
+      return locale.value;
+    },
+    set: function set(v) {
+      locale.value = v;
+    } });
+
+}
+
+var PROP_TYPES = [String, Number, Boolean, Object, Array, null];
+function createObserver(name) {
+  return function observer(newVal) {
+    if (this.$vm) {
+      this.$vm.$.props[name] = newVal; // 为了触发其他非 render watcher
+    }
+  };
+}
+function parsePropType(key, type, defaultValue) {
+  // [String]=>String
+  if ((0, _shared.isArray)(type) && type.length === 1) {
+    return type[0];
+  }
+  return type;
+}
+function initDefaultProps() {var isBehavior = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
+  var properties = {};
+  if (!isBehavior) {
+    properties.vueId = {
+      type: String,
+      value: '' };
+
+    // 小程序不能直接定义 $slots 的 props，所以通过 vueSlots 转换到 $slots
+    properties.vueSlots = {
+      type: null,
+      value: [],
+      observer: function observer(newVal) {
+        var $slots = Object.create(null);
+        newVal.forEach(function (slotName) {
+          $slots[slotName] = true;
+        });
+        this.setData({
+          $slots: $slots });
+
+      } };
+
+  }
+  return properties;
+}
+function createProperty(key, prop) {
+  prop.observer = createObserver(key);
+  return prop;
+}
+function initProps(mpComponentOptions, rawProps) {var isBehavior = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
+  var properties = initDefaultProps(isBehavior);
+  if ((0, _shared.isArray)(rawProps)) {
+    rawProps.forEach(function (key) {
+      properties[key] = createProperty(key, {
+        type: null });
+
+    });
+  } else
+  if ((0, _shared.isPlainObject)(rawProps)) {
+    Object.keys(rawProps).forEach(function (key) {
+      var opts = rawProps[key];
+      if ((0, _shared.isPlainObject)(opts)) {
+        // title:{type:String,default:''}
+        var value = opts.default;
+        if ((0, _shared.isFunction)(value)) {
+          value = value();
+        }
+        var type = opts.type;
+        opts.type = parsePropType(key, type);
+        properties[key] = createProperty(key, {
+          type: PROP_TYPES.indexOf(type) !== -1 ? type : null,
+          value: value });
+
+      } else
+      {
+        // content:String
+        var _type = parsePropType(key, opts);
+        properties[key] = createProperty(key, {
+          type: PROP_TYPES.indexOf(_type) !== -1 ? _type : null });
+
+      }
+    });
+  }
+  mpComponentOptions.properties = properties;
+}
+
+function initData(vueOptions) {
+  var data = vueOptions.data || {};
+  if (typeof data === 'function') {
+    try {
+      var appConfig = getApp().$vm.$.appContext.config;
+      data = data.call(appConfig.globalProperties);
+    }
+    catch (e) {
+      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"wx-app","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
+        console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data, e);
+      }
+    }
+  } else
+  {
+    try {
+      // 对 data 格式化
+      data = JSON.parse(JSON.stringify(data));
+    }
+    catch (e) {}
+  }
+  if (!(0, _shared.isPlainObject)(data)) {
+    data = {};
+  }
+  return data;
+}
+function initBehaviors(vueOptions, initBehavior) {
+  var vueBehaviors = vueOptions.behaviors;
+  var vueExtends = vueOptions.extends;
+  var vueMixins = vueOptions.mixins;
+  var vueProps = vueOptions.props;
+  if (!vueProps) {
+    vueOptions.props = vueProps = [];
+  }
+  var behaviors = [];
+  if ((0, _shared.isArray)(vueBehaviors)) {
+    vueBehaviors.forEach(function (behavior) {
+      behaviors.push(behavior.replace('uni://', "".concat(__PLATFORM_PREFIX__, "://")));
+      if (behavior === 'uni://form-field') {
+        if ((0, _shared.isArray)(vueProps)) {
+          vueProps.push('name');
+          vueProps.push('value');
+        } else
+        {
+          vueProps.name = {
+            type: String,
+            default: '' };
+
+          vueProps.value = {
+            type: [String, Number, Boolean, Array, Object, Date],
+            default: '' };
+
+        }
+      }
+    });
+  }
+  if (vueExtends && vueExtends.props) {
+    var behavior = {};
+    initProps(behavior, vueExtends.props, true);
+    behaviors.push(initBehavior(behavior));
+  }
+  if ((0, _shared.isArray)(vueMixins)) {
+    vueMixins.forEach(function (vueMixin) {
+      if (vueMixin.props) {
+        var _behavior = {};
+        initProps(_behavior, vueMixin.props, true);
+        behaviors.push(initBehavior(_behavior));
+      }
+    });
+  }
+  return behaviors;
+}
+function applyOptions(componentOptions, vueOptions, initBehavior) {
+  componentOptions.data = initData(vueOptions);
+  componentOptions.behaviors = initBehaviors(vueOptions, initBehavior);
+}
+
+function getExtraValue(instance, dataPathsArray) {
+  var context = instance;
+  dataPathsArray.forEach(function (dataPathArray) {
+    var dataPath = dataPathArray[0];
+    var value = dataPathArray[2];
+    if (dataPath || typeof value !== 'undefined') {
+      // ['','',index,'disable']
+      var propPath = dataPathArray[1];
+      var valuePath = dataPathArray[3];
+      var vFor;
+      if (Number.isInteger(dataPath)) {
+        vFor = dataPath;
+      } else
+      if (!dataPath) {
+        vFor = context;
+      } else
+      if (typeof dataPath === 'string' && dataPath) {
+        if (dataPath.indexOf('#s#') === 0) {
+          vFor = dataPath.substr(3);
+        } else
+        {
+          vFor = getTarget(context, dataPath);
+        }
+      }
+      if (Number.isInteger(vFor)) {
+        context = value;
+      } else
+      if (!propPath) {
+        context = vFor[value];
+      } else
+      {
+        if ((0, _shared.isArray)(vFor)) {
+          context = vFor.find(function (vForItem) {
+            return getTarget(vForItem, propPath) === value;
+          });
+        } else
+        if ((0, _shared.isPlainObject)(vFor)) {
+          context = Object.keys(vFor).find(function (vForKey) {
+            return getTarget(vFor[vForKey], propPath) === value;
+          });
+        } else
+        {
+          console.error('v-for 暂不支持循环数据：', vFor);
+        }
+      }
+      if (valuePath) {
+        context = getTarget(context, valuePath);
+      }
+    }
+  });
+  return context;
+}
+function processEventExtra(instance, extra, event) {
+  var extraObj = {};
+  if ((0, _shared.isArray)(extra) && extra.length) {
+    /**
+                                                     *[
+                                                     *    ['data.items', 'data.id', item.data.id],
+                                                     *    ['metas', 'id', meta.id]
+                                                     *],
+                                                     *[
+                                                     *    ['data.items', 'data.id', item.data.id],
+                                                     *    ['metas', 'id', meta.id]
+                                                     *],
+                                                     *'test'
+                                                     */
+    extra.forEach(function (dataPath, index) {
+      if (typeof dataPath === 'string') {
+        if (!dataPath) {
+          // model,prop.sync
+          extraObj['$' + index] = instance;
+        } else
+        {
+          if (dataPath === '$event') {
+            // $event
+            extraObj['$' + index] = event;
+          } else
+          if (dataPath === 'arguments') {
+            if (event.detail && event.detail.__args__) {
+              extraObj['$' + index] = event.detail.__args__;
+            } else
+            {
+              extraObj['$' + index] = [event];
+            }
+          } else
+          if (dataPath.indexOf('$event.') === 0) {
+            // $event.target.value
+            extraObj['$' + index] = getTarget(event, dataPath.replace('$event.', ''));
+          } else
+          {
+            extraObj['$' + index] = getTarget(instance, dataPath);
+          }
+        }
+      } else
+      {
+        extraObj['$' + index] = getExtraValue(instance, dataPath);
+      }
+    });
+  }
+  return extraObj;
+}
+function getObjByArray(arr) {
+  var obj = {};
+  for (var i = 1; i < arr.length; i++) {
+    var element = arr[i];
+    obj[element[0]] = element[1];
+  }
+  return obj;
+}
+function processEventArgs(instance, event) {var args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];var extra = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];var isCustom = arguments.length > 4 ? arguments[4] : undefined;var methodName = arguments.length > 5 ? arguments[5] : undefined;
+  var isCustomMPEvent = false; // wxcomponent 组件，传递原始 event 对象
+  if (isCustom) {
+    // 自定义事件
+    isCustomMPEvent =
+    event.currentTarget &&
+    event.currentTarget.dataset &&
+    event.currentTarget.dataset.comType === 'wx';
+    if (!args.length) {
+      // 无参数，直接传入 event 或 detail 数组
+      if (isCustomMPEvent) {
+        return [event];
+      }
+      return event.detail.__args__ || event.detail;
+    }
+  }
+  var extraObj = processEventExtra(instance, extra, event);
+  var ret = [];
+  args.forEach(function (arg) {
+    if (arg === '$event') {
+      if (methodName === '__set_model' && !isCustom) {
+        // input v-model value
+        ret.push(event.target.value);
+      } else
+      {
+        if (isCustom && !isCustomMPEvent) {
+          ret.push(event.detail.__args__[0]);
+        } else
+        {
+          // wxcomponent 组件或内置组件
+          ret.push(event);
+        }
+      }
+    } else
+    {
+      if ((0, _shared.isArray)(arg) && arg[0] === 'o') {
+        ret.push(getObjByArray(arg));
+      } else
+      if (typeof arg === 'string' && (0, _shared.hasOwn)(extraObj, arg)) {
+        ret.push(extraObj[arg]);
+      } else
+      {
+        ret.push(arg);
+      }
+    }
+  });
+  return ret;
+}
+function wrapper(event) {
+  event.stopPropagation = _shared.NOOP;
+  event.preventDefault = _shared.NOOP;
+  event.target = event.target || {};
+  if (!(0, _shared.hasOwn)(event, 'detail')) {
+    event.detail = {};
+  }
+  if ((0, _shared.hasOwn)(event, 'markerId')) {
+    event.detail = typeof event.detail === 'object' ? event.detail : {};
+    event.detail.markerId = event.markerId;
+  }
+  if ((0, _shared.isPlainObject)(event.detail)) {
+    event.target = (0, _shared.extend)({}, event.target, event.detail);
+  }
+  return event;
+}
+var ONCE = '~';
+var CUSTOM = '^';
+function matchEventType(eventType, optType) {
+  return eventType === optType ||
+  optType === 'regionchange' && (
+  eventType === 'begin' || eventType === 'end');
+}
+function handleEvent(event) {var _this = this;
+  event = wrapper(event);
+  // [['tap',[['handle',[1,2,a]],['handle1',[1,2,a]]]]]
+  var dataset = (event.currentTarget || event.target).dataset;
+  if (!dataset) {
+    return console.warn('事件信息不存在');
+  }
+  var eventOpts = dataset.eventOpts ||
+  dataset['event-opts']; // 支付宝 web-view 组件 dataset 非驼峰
+  if (!eventOpts) {
+    return console.warn('事件信息不存在');
+  }
+  // [['handle',[1,2,a]],['handle1',[1,2,a]]]
+  var eventType = event.type;
+  var ret = [];
+  eventOpts.forEach(function (eventOpt) {
+    var type = eventOpt[0];
+    var eventsArray = eventOpt[1];
+    var isCustom = type.charAt(0) === CUSTOM;
+    type = isCustom ? type.slice(1) : type;
+    var isOnce = type.charAt(0) === ONCE;
+    type = isOnce ? type.slice(1) : type;
+    if (eventsArray && matchEventType(eventType, type)) {
+      eventsArray.forEach(function (eventArray) {
+        var methodName = eventArray[0];
+        if (methodName) {
+          var handlerCtx = _this.$vm;
+          if (handlerCtx.$options.generic &&
+          handlerCtx.$parent &&
+          handlerCtx.$parent.$parent) {
+            // mp-weixin,mp-toutiao 抽象节点模拟 scoped slots
+            handlerCtx = handlerCtx.$parent.$parent;
+          }
+          if (methodName === '$emit') {
+            handlerCtx.$emit.apply(handlerCtx, processEventArgs(_this.$vm, event, eventArray[1], eventArray[2], isCustom, methodName));
+            return;
+          }
+          var handler = handlerCtx[methodName];
+          if (!(0, _shared.isFunction)(handler)) {
+            throw new Error(" _vm.".concat(methodName, " is not a function"));
+          }
+          if (isOnce) {
+            if (handler.once) {
+              return;
+            }
+            handler.once = true;
+          }
+          var params = processEventArgs(_this.$vm, event, eventArray[1], eventArray[2], isCustom, methodName);
+          params = Array.isArray(params) ? params : [];
+          // 参数尾部增加原始事件对象用于复杂表达式内获取额外数据
+          if (/=\s*\S+\.eventParams\s*\|\|\s*\S+\[['"]event-params['"]\]/.test(handler.toString())) {
+            // eslint-disable-next-line no-sparse-arrays
+            params = params.concat([,,,,,,,,,, event]);
+          }
+          ret.push(handler.apply(handlerCtx, params));
+        }
+      });
+    }
+  });
+  if (eventType === 'input' &&
+  ret.length === 1 &&
+  typeof ret[0] !== 'undefined') {
+    return ret[0];
+  }
+}
+
+function parseComponent(vueOptions, _ref) {var parse = _ref.parse,mocks = _ref.mocks,isPage = _ref.isPage,initRelation = _ref.initRelation,handleLink = _ref.handleLink,initLifetimes = _ref.initLifetimes;
+  vueOptions = vueOptions.default || vueOptions;
+  var options = {
+    multipleSlots: true,
+    addGlobalClass: true };
+
+  if (vueOptions.options) {
+    (0, _shared.extend)(options, vueOptions.options);
+  }
+  var mpComponentOptions = {
+    options: options,
+    lifetimes: initLifetimes({ mocks: mocks, isPage: isPage, initRelation: initRelation, vueOptions: vueOptions }),
+    pageLifetimes: {
+      show: function show() {
+        this.$vm && this.$vm.$callHook('onPageShow');
+      },
+      hide: function hide() {
+        this.$vm && this.$vm.$callHook('onPageHide');
+      },
+      resize: function resize(size) {
+        this.$vm && this.$vm.$callHook('onPageResize', size);
+      } },
+
+    methods: {
+      __l: handleLink,
+      __e: handleEvent } };
+
+
+  if (true) {
+    applyOptions(mpComponentOptions, vueOptions, initBehavior);
+  }
+  initProps(mpComponentOptions, vueOptions.props, false);
+  initExtraOptions(mpComponentOptions, vueOptions);
+  initWxsCallMethods(mpComponentOptions.methods, vueOptions.wxsCallMethods);
+  if (parse) {
+    parse(mpComponentOptions, { handleLink: handleLink });
+  }
+  return mpComponentOptions;
+}
+function initCreateComponent(parseOptions) {
+  return function createComponent(vueComponentOptions) {
+    return Component(parseComponent(vueComponentOptions, parseOptions));
+  };
+}
+var $createComponentFn;
+var $destroyComponentFn;
+function $createComponent(initialVNode, options) {
+  if (!$createComponentFn) {
+    $createComponentFn = getApp().$vm.$createComponent;
+  }
+  return $createComponentFn(initialVNode, options);
+}
+function $destroyComponent(instance) {
+  if (!$destroyComponentFn) {
+    $destroyComponentFn = getApp().$vm.$destroyComponent;
+  }
+  return $destroyComponentFn(instance);
+}
+
+function parsePage(vueOptions, parseOptions) {var
+  parse = parseOptions.parse,mocks = parseOptions.mocks,isPage = parseOptions.isPage,initRelation = parseOptions.initRelation,handleLink = parseOptions.handleLink,initLifetimes = parseOptions.initLifetimes;
+  var miniProgramPageOptions = parseComponent(vueOptions, {
+    mocks: mocks,
+    isPage: isPage,
+    initRelation: initRelation,
+    handleLink: handleLink,
+    initLifetimes: initLifetimes });
+
+  var methods = miniProgramPageOptions.methods;
+  methods.onLoad = function (query) {
+    this.options = query;
+    this.$page = {
+      fullPath: '/' + this.route + stringifyQuery(query) };
+
+    return this.$vm && this.$vm.$callHook(ON_LOAD, query);
+  };
+  initHooks(methods, PAGE_HOOKS);
+  initUnknownHooks(methods, vueOptions);
+  parse && parse(miniProgramPageOptions, { handleLink: handleLink });
+  return miniProgramPageOptions;
+}
+function initCreatePage(parseOptions) {
+  return function createPage(vuePageOptions) {
+    return Component(parsePage(vuePageOptions, parseOptions));
+  };
+}
+
+var MPPage = Page;
+var MPComponent = Component;
+var customizeRE = /:/g;
+function customize(str) {
+  return (0, _shared.camelize)(str.replace(customizeRE, '-'));
+}
+function initTriggerEvent(mpInstance) {
+  var oldTriggerEvent = mpInstance.triggerEvent;
+  mpInstance.triggerEvent = function (event) {for (var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {args[_key3 - 1] = arguments[_key3];}
+    return oldTriggerEvent.apply(mpInstance, [customize(event)].concat(args));
+  };
+}
+function initHook(name, options) {
+  var oldHook = options[name];
+  if (!oldHook) {
+    options[name] = function () {
+      initTriggerEvent(this);
+    };
+  } else
+  {
+    options[name] = function () {
+      initTriggerEvent(this);for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {args[_key4] = arguments[_key4];}
+      return oldHook.apply(this, args);
+    };
+  }
+}
+Page = function Page(options) {
+  initHook(ON_LOAD, options);
+  return MPPage(options);
+};
+Component = function Component(options) {
+  initHook('created', options);
+  return MPComponent(options);
+};
+
+function initLifetimes(_ref2) {var mocks = _ref2.mocks,isPage = _ref2.isPage,initRelation = _ref2.initRelation,vueOptions = _ref2.vueOptions;
+  return {
+    attached: function attached() {
+      var properties = this.properties;
+      initVueIds(properties.vueId, this);
+      var relationOptions = {
+        vuePid: this._$vuePid };
+
+      // 处理父子关系
+      initRelation(this, relationOptions);
+      // 初始化 vue 实例
+      var mpInstance = this;
+      this.$vm = $createComponent({
+        type: vueOptions,
+        props: properties },
+      {
+        mpType: isPage(mpInstance) ? 'page' : 'component',
+        mpInstance: mpInstance,
+        slots: properties.vueSlots,
+        parentComponent: relationOptions.parent && relationOptions.parent.$,
+        onBeforeSetup: function onBeforeSetup(instance, options) {
+          initRefs(instance, mpInstance);
+          initMocks(instance, mpInstance, mocks);
+          initComponentInstance(instance, options);
+        } });
+
+    },
+    ready: function ready() {
+      // 当组件 props 默认值为 true，初始化时传入 false 会导致 created,ready 触发, 但 attached 不触发
+      // https://developers.weixin.qq.com/community/develop/doc/00066ae2844cc0f8eb883e2a557800
+      if (this.$vm) {
+        this.$vm.$callHook('mounted');
+        this.$vm.$callHook(ON_READY);
+      }
+    },
+    detached: function detached() {
+      this.$vm && $destroyComponent(this.$vm);
+    } };
+
+}
+
+var mocks = ['__route__', '__wxExparserNodeId__', '__wxWebviewId__'];
+function isPage(mpInstance) {
+  return !!mpInstance.route;
+}
+function initRelation(mpInstance, detail) {
+  mpInstance.triggerEvent('__l', detail);
+}
+function handleLink(event) {
+  // detail 是微信,value 是百度(dipatch)
+  var detail = event.detail ||
+  event.value;
+  var vuePid = detail.vuePid;
+  var parentVm;
+  if (vuePid) {
+    parentVm = findVmByVueId(this.$vm, vuePid);
+  }
+  if (!parentVm) {
+    parentVm = this.$vm;
+  }
+  detail.parent = parentVm;
+}
+
+var parseOptions = /*#__PURE__*/Object.freeze({
+  __proto__: null,
+  mocks: mocks,
+  isPage: isPage,
+  initRelation: initRelation,
+  handleLink: handleLink,
+  initLifetimes: initLifetimes });
+
+
+var createApp = initCreateApp();exports.createApp = createApp;
+var createPage = initCreatePage(parseOptions);exports.createPage = createPage;
+var createComponent = initCreateComponent(parseOptions);exports.createComponent = createComponent;
+wx.createApp = createApp;
+wx.createPage = createPage;
+wx.createComponent = createComponent;
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! @dcloudio/uni-mp-weixin/dist/uni.api.esm.js */ 7)["default"]))
+
+/***/ }),
+
+/***/ 5:
 /*!**********************************************************************************************************!*\
   !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vue-loader/lib/runtime/componentNormalizer.js ***!
   \**********************************************************************************************************/
@@ -141,7 +1334,8 @@ function normalizeComponent (
 
 
 /***/ }),
-/* 6 */
+
+/***/ 6:
 /*!*******************************************************************!*\
   !*** ./node_modules/@dcloudio/uni-mp-vue/dist/vue.runtime.esm.js ***!
   \*******************************************************************/
@@ -5108,7 +6302,8 @@ const createSSRApp = createApp;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! @dcloudio/uni-mp-weixin/dist/uni.api.esm.js */ 7)["default"], __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/uni.mp.esm.js */ 10)["createApp"]))
 
 /***/ }),
-/* 7 */
+
+/***/ 7:
 /*!******************************************************************!*\
   !*** ./node_modules/@dcloudio/uni-mp-weixin/dist/uni.api.esm.js ***!
   \******************************************************************/
@@ -5964,7 +7159,1566 @@ var index = initUni(shims, protocols);exports.default = index;
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! @dcloudio/uni-mp-weixin/dist/uni.api.esm.js */ 7)["default"]))
 
 /***/ }),
-/* 8 */
+
+/***/ 77:
+/*!**********************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/vuex/dist/vuex.cjs.js ***!
+  \**********************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/*!
+ * vuex v4.0.2
+ * (c) 2021 Evan You
+ * @license MIT
+ */
+
+
+var vue = __webpack_require__(/*! vue */ 6)
+var devtoolsApi = __webpack_require__(/*! @vue/devtools-api */ 78)
+
+var storeKey = 'store'
+
+function useStore (key) {
+  if (key === void 0) key = null
+
+  return vue.inject(key !== null ? key : storeKey)
+}
+
+/**
+ * Get the first item that pass the test
+ * by second argument function
+ *
+ * @param {Array} list
+ * @param {Function} f
+ * @return {*}
+ */
+function find (list, f) {
+  return list.filter(f)[0]
+}
+
+/**
+ * Deep copy the given object considering circular structure.
+ * This function caches all nested objects and its copies.
+ * If it detects circular structure, use cached copy to avoid infinite loop.
+ *
+ * @param {*} obj
+ * @param {Array<Object>} cache
+ * @return {*}
+ */
+function deepCopy (obj, cache) {
+  if (cache === void 0) cache = []
+
+  // just return if obj is immutable value
+  if (obj === null || typeof obj !== 'object') {
+    return obj
+  }
+
+  // if obj is hit, it is in circular structure
+  var hit = find(cache, function (c) { return c.original === obj })
+  if (hit) {
+    return hit.copy
+  }
+
+  var copy = Array.isArray(obj) ? [] : {}
+  // put the copy into cache at first
+  // because we want to refer it in recursive deepCopy
+  cache.push({
+    original: obj,
+    copy: copy
+  })
+
+  Object.keys(obj).forEach(function (key) {
+    copy[key] = deepCopy(obj[key], cache)
+  })
+
+  return copy
+}
+
+/**
+ * forEach for object
+ */
+function forEachValue (obj, fn) {
+  Object.keys(obj).forEach(function (key) { return fn(obj[key], key) })
+}
+
+function isObject (obj) {
+  return obj !== null && typeof obj === 'object'
+}
+
+function isPromise (val) {
+  return val && typeof val.then === 'function'
+}
+
+function assert (condition, msg) {
+  if (!condition) { throw new Error(('[vuex] ' + msg)) }
+}
+
+function partial (fn, arg) {
+  return function () {
+    return fn(arg)
+  }
+}
+
+function genericSubscribe (fn, subs, options) {
+  if (subs.indexOf(fn) < 0) {
+    options && options.prepend
+      ? subs.unshift(fn)
+      : subs.push(fn)
+  }
+  return function () {
+    var i = subs.indexOf(fn)
+    if (i > -1) {
+      subs.splice(i, 1)
+    }
+  }
+}
+
+function resetStore (store, hot) {
+  store._actions = Object.create(null)
+  store._mutations = Object.create(null)
+  store._wrappedGetters = Object.create(null)
+  store._modulesNamespaceMap = Object.create(null)
+  var state = store.state
+  // init all modules
+  installModule(store, state, [], store._modules.root, true)
+  // reset state
+  resetStoreState(store, state, hot)
+}
+
+function resetStoreState (store, state, hot) {
+  var oldState = store._state
+
+  // bind store public getters
+  store.getters = {}
+  // reset local getters cache
+  store._makeLocalGettersCache = Object.create(null)
+  var wrappedGetters = store._wrappedGetters
+  var computedObj = {}
+  forEachValue(wrappedGetters, function (fn, key) {
+    // use computed to leverage its lazy-caching mechanism
+    // direct inline function use will lead to closure preserving oldState.
+    // using partial to return function with only arguments preserved in closure environment.
+    computedObj[key] = partial(fn, store)
+    Object.defineProperty(store.getters, key, {
+      // TODO: use `computed` when it's possible. at the moment we can't due to
+      // https://github.com/vuejs/vuex/pull/1883
+      get: function () { return computedObj[key]() },
+      enumerable: true // for local getters
+    })
+  })
+
+  store._state = vue.reactive({
+    data: state
+  })
+
+  // enable strict mode for new state
+  if (store.strict) {
+    enableStrictMode(store)
+  }
+
+  if (oldState) {
+    if (hot) {
+      // dispatch changes in all subscribed watchers
+      // to force getter re-evaluation for hot reloading.
+      store._withCommit(function () {
+        oldState.data = null
+      })
+    }
+  }
+}
+
+function installModule (store, rootState, path, module, hot) {
+  var isRoot = !path.length
+  var namespace = store._modules.getNamespace(path)
+
+  // register in namespace map
+  if (module.namespaced) {
+    if (store._modulesNamespaceMap[namespace] && ("development" !== 'production')) {
+      console.error(('[vuex] duplicate namespace ' + namespace + ' for the namespaced module ' + (path.join('/'))))
+    }
+    store._modulesNamespaceMap[namespace] = module
+  }
+
+  // set state
+  if (!isRoot && !hot) {
+    var parentState = getNestedState(rootState, path.slice(0, -1))
+    var moduleName = path[path.length - 1]
+    store._withCommit(function () {
+      if ((true)) {
+        if (moduleName in parentState) {
+          console.warn(
+            ('[vuex] state field "' + moduleName + '" was overridden by a module with the same name at "' + (path.join('.')) + '"')
+          )
+        }
+      }
+      parentState[moduleName] = module.state
+    })
+  }
+
+  var local = module.context = makeLocalContext(store, namespace, path)
+
+  module.forEachMutation(function (mutation, key) {
+    var namespacedType = namespace + key
+    registerMutation(store, namespacedType, mutation, local)
+  })
+
+  module.forEachAction(function (action, key) {
+    var type = action.root ? key : namespace + key
+    var handler = action.handler || action
+    registerAction(store, type, handler, local)
+  })
+
+  module.forEachGetter(function (getter, key) {
+    var namespacedType = namespace + key
+    registerGetter(store, namespacedType, getter, local)
+  })
+
+  module.forEachChild(function (child, key) {
+    installModule(store, rootState, path.concat(key), child, hot)
+  })
+}
+
+/**
+ * make localized dispatch, commit, getters and state
+ * if there is no namespace, just use root ones
+ */
+function makeLocalContext (store, namespace, path) {
+  var noNamespace = namespace === ''
+
+  var local = {
+    dispatch: noNamespace ? store.dispatch : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options)
+      var payload = args.payload
+      var options = args.options
+      var type = args.type
+
+      if (!options || !options.root) {
+        type = namespace + type
+        if (( true) && !store._actions[type]) {
+          console.error(('[vuex] unknown local action type: ' + (args.type) + ', global type: ' + type))
+          return
+        }
+      }
+
+      return store.dispatch(type, payload)
+    },
+
+    commit: noNamespace ? store.commit : function (_type, _payload, _options) {
+      var args = unifyObjectStyle(_type, _payload, _options)
+      var payload = args.payload
+      var options = args.options
+      var type = args.type
+
+      if (!options || !options.root) {
+        type = namespace + type
+        if (( true) && !store._mutations[type]) {
+          console.error(('[vuex] unknown local mutation type: ' + (args.type) + ', global type: ' + type))
+          return
+        }
+      }
+
+      store.commit(type, payload, options)
+    }
+  }
+
+  // getters and state object must be gotten lazily
+  // because they will be changed by state update
+  Object.defineProperties(local, {
+    getters: {
+      get: noNamespace
+        ? function () { return store.getters }
+        : function () { return makeLocalGetters(store, namespace) }
+    },
+    state: {
+      get: function () { return getNestedState(store.state, path) }
+    }
+  })
+
+  return local
+}
+
+function makeLocalGetters (store, namespace) {
+  if (!store._makeLocalGettersCache[namespace]) {
+    var gettersProxy = {}
+    var splitPos = namespace.length
+    Object.keys(store.getters).forEach(function (type) {
+      // skip if the target getter is not match this namespace
+      if (type.slice(0, splitPos) !== namespace) { return }
+
+      // extract local getter type
+      var localType = type.slice(splitPos)
+
+      // Add a port to the getters proxy.
+      // Define as getter property because
+      // we do not want to evaluate the getters in this time.
+      Object.defineProperty(gettersProxy, localType, {
+        get: function () { return store.getters[type] },
+        enumerable: true
+      })
+    })
+    store._makeLocalGettersCache[namespace] = gettersProxy
+  }
+
+  return store._makeLocalGettersCache[namespace]
+}
+
+function registerMutation (store, type, handler, local) {
+  var entry = store._mutations[type] || (store._mutations[type] = [])
+  entry.push(function wrappedMutationHandler (payload) {
+    handler.call(store, local.state, payload)
+  })
+}
+
+function registerAction (store, type, handler, local) {
+  var entry = store._actions[type] || (store._actions[type] = [])
+  entry.push(function wrappedActionHandler (payload) {
+    var res = handler.call(store, {
+      dispatch: local.dispatch,
+      commit: local.commit,
+      getters: local.getters,
+      state: local.state,
+      rootGetters: store.getters,
+      rootState: store.state
+    }, payload)
+    if (!isPromise(res)) {
+      res = Promise.resolve(res)
+    }
+    if (store._devtoolHook) {
+      return res.catch(function (err) {
+        store._devtoolHook.emit('vuex:error', err)
+        throw err
+      })
+    } else {
+      return res
+    }
+  })
+}
+
+function registerGetter (store, type, rawGetter, local) {
+  if (store._wrappedGetters[type]) {
+    if ((true)) {
+      console.error(('[vuex] duplicate getter key: ' + type))
+    }
+    return
+  }
+  store._wrappedGetters[type] = function wrappedGetter (store) {
+    return rawGetter(
+      local.state, // local state
+      local.getters, // local getters
+      store.state, // root state
+      store.getters // root getters
+    )
+  }
+}
+
+function enableStrictMode (store) {
+  vue.watch(function () { return store._state.data }, function () {
+    if ((true)) {
+      assert(store._committing, 'do not mutate vuex store state outside mutation handlers.')
+    }
+  }, { deep: true, flush: 'sync' })
+}
+
+function getNestedState (state, path) {
+  return path.reduce(function (state, key) { return state[key] }, state)
+}
+
+function unifyObjectStyle (type, payload, options) {
+  if (isObject(type) && type.type) {
+    options = payload
+    payload = type
+    type = type.type
+  }
+
+  if ((true)) {
+    assert(typeof type === 'string', ('expects string as the type, but found ' + (typeof type) + '.'))
+  }
+
+  return { type: type, payload: payload, options: options }
+}
+
+var LABEL_VUEX_BINDINGS = 'vuex bindings'
+var MUTATIONS_LAYER_ID = 'vuex:mutations'
+var ACTIONS_LAYER_ID = 'vuex:actions'
+var INSPECTOR_ID = 'vuex'
+
+var actionId = 0
+
+function addDevtools (app, store) {
+  devtoolsApi.setupDevtoolsPlugin(
+    {
+      id: 'org.vuejs.vuex',
+      app: app,
+      label: 'Vuex',
+      homepage: 'https://next.vuex.vuejs.org/',
+      logo: 'https://vuejs.org/images/icons/favicon-96x96.png',
+      packageName: 'vuex',
+      componentStateTypes: [LABEL_VUEX_BINDINGS]
+    },
+    function (api) {
+      api.addTimelineLayer({
+        id: MUTATIONS_LAYER_ID,
+        label: 'Vuex Mutations',
+        color: COLOR_LIME_500
+      })
+
+      api.addTimelineLayer({
+        id: ACTIONS_LAYER_ID,
+        label: 'Vuex Actions',
+        color: COLOR_LIME_500
+      })
+
+      api.addInspector({
+        id: INSPECTOR_ID,
+        label: 'Vuex',
+        icon: 'storage',
+        treeFilterPlaceholder: 'Filter stores...'
+      })
+
+      api.on.getInspectorTree(function (payload) {
+        if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
+          if (payload.filter) {
+            var nodes = []
+            flattenStoreForInspectorTree(nodes, store._modules.root, payload.filter, '')
+            payload.rootNodes = nodes
+          } else {
+            payload.rootNodes = [
+              formatStoreForInspectorTree(store._modules.root, '')
+            ]
+          }
+        }
+      })
+
+      api.on.getInspectorState(function (payload) {
+        if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
+          var modulePath = payload.nodeId
+          makeLocalGetters(store, modulePath)
+          payload.state = formatStoreForInspectorState(
+            getStoreModule(store._modules, modulePath),
+            modulePath === 'root' ? store.getters : store._makeLocalGettersCache,
+            modulePath
+          )
+        }
+      })
+
+      api.on.editInspectorState(function (payload) {
+        if (payload.app === app && payload.inspectorId === INSPECTOR_ID) {
+          var modulePath = payload.nodeId
+          var path = payload.path
+          if (modulePath !== 'root') {
+            path = modulePath.split('/').filter(Boolean).concat(path)
+          }
+          store._withCommit(function () {
+            payload.set(store._state.data, path, payload.state.value)
+          })
+        }
+      })
+
+      store.subscribe(function (mutation, state) {
+        var data = {}
+
+        if (mutation.payload) {
+          data.payload = mutation.payload
+        }
+
+        data.state = state
+
+        api.notifyComponentUpdate()
+        api.sendInspectorTree(INSPECTOR_ID)
+        api.sendInspectorState(INSPECTOR_ID)
+
+        api.addTimelineEvent({
+          layerId: MUTATIONS_LAYER_ID,
+          event: {
+            time: Date.now(),
+            title: mutation.type,
+            data: data
+          }
+        })
+      })
+
+      store.subscribeAction({
+        before: function (action, state) {
+          var data = {}
+          if (action.payload) {
+            data.payload = action.payload
+          }
+          action._id = actionId++
+          action._time = Date.now()
+          data.state = state
+
+          api.addTimelineEvent({
+            layerId: ACTIONS_LAYER_ID,
+            event: {
+              time: action._time,
+              title: action.type,
+              groupId: action._id,
+              subtitle: 'start',
+              data: data
+            }
+          })
+        },
+        after: function (action, state) {
+          var data = {}
+          var duration = Date.now() - action._time
+          data.duration = {
+            _custom: {
+              type: 'duration',
+              display: (duration + 'ms'),
+              tooltip: 'Action duration',
+              value: duration
+            }
+          }
+          if (action.payload) {
+            data.payload = action.payload
+          }
+          data.state = state
+
+          api.addTimelineEvent({
+            layerId: ACTIONS_LAYER_ID,
+            event: {
+              time: Date.now(),
+              title: action.type,
+              groupId: action._id,
+              subtitle: 'end',
+              data: data
+            }
+          })
+        }
+      })
+    }
+  )
+}
+
+// extracted from tailwind palette
+var COLOR_LIME_500 = 0x84cc16
+var COLOR_DARK = 0x666666
+var COLOR_WHITE = 0xffffff
+
+var TAG_NAMESPACED = {
+  label: 'namespaced',
+  textColor: COLOR_WHITE,
+  backgroundColor: COLOR_DARK
+}
+
+/**
+ * @param {string} path
+ */
+function extractNameFromPath (path) {
+  return path && path !== 'root' ? path.split('/').slice(-2, -1)[0] : 'Root'
+}
+
+/**
+ * @param {*} module
+ * @return {import('@vue/devtools-api').CustomInspectorNode}
+ */
+function formatStoreForInspectorTree (module, path) {
+  return {
+    id: path || 'root',
+    // all modules end with a `/`, we want the last segment only
+    // cart/ -> cart
+    // nested/cart/ -> cart
+    label: extractNameFromPath(path),
+    tags: module.namespaced ? [TAG_NAMESPACED] : [],
+    children: Object.keys(module._children).map(function (moduleName) {
+      return formatStoreForInspectorTree(
+        module._children[moduleName],
+        path + moduleName + '/'
+      )
+    }
+    )
+  }
+}
+
+/**
+ * @param {import('@vue/devtools-api').CustomInspectorNode[]} result
+ * @param {*} module
+ * @param {string} filter
+ * @param {string} path
+ */
+function flattenStoreForInspectorTree (result, module, filter, path) {
+  if (path.includes(filter)) {
+    result.push({
+      id: path || 'root',
+      label: path.endsWith('/') ? path.slice(0, path.length - 1) : path || 'Root',
+      tags: module.namespaced ? [TAG_NAMESPACED] : []
+    })
+  }
+  Object.keys(module._children).forEach(function (moduleName) {
+    flattenStoreForInspectorTree(result, module._children[moduleName], filter, path + moduleName + '/')
+  })
+}
+
+/**
+ * @param {*} module
+ * @return {import('@vue/devtools-api').CustomInspectorState}
+ */
+function formatStoreForInspectorState (module, getters, path) {
+  getters = path === 'root' ? getters : getters[path]
+  var gettersKeys = Object.keys(getters)
+  var storeState = {
+    state: Object.keys(module.state).map(function (key) {
+      return ({
+        key: key,
+        editable: true,
+        value: module.state[key]
+      })
+    })
+  }
+
+  if (gettersKeys.length) {
+    var tree = transformPathsToObjectTree(getters)
+    storeState.getters = Object.keys(tree).map(function (key) {
+      return ({
+        key: key.endsWith('/') ? extractNameFromPath(key) : key,
+        editable: false,
+        value: canThrow(function () { return tree[key] })
+      })
+    })
+  }
+
+  return storeState
+}
+
+function transformPathsToObjectTree (getters) {
+  var result = {}
+  Object.keys(getters).forEach(function (key) {
+    var path = key.split('/')
+    if (path.length > 1) {
+      var target = result
+      var leafKey = path.pop()
+      path.forEach(function (p) {
+        if (!target[p]) {
+          target[p] = {
+            _custom: {
+              value: {},
+              display: p,
+              tooltip: 'Module',
+              abstract: true
+            }
+          }
+        }
+        target = target[p]._custom.value
+      })
+      target[leafKey] = canThrow(function () { return getters[key] })
+    } else {
+      result[key] = canThrow(function () { return getters[key] })
+    }
+  })
+  return result
+}
+
+function getStoreModule (moduleMap, path) {
+  var names = path.split('/').filter(function (n) { return n })
+  return names.reduce(
+    function (module, moduleName, i) {
+      var child = module[moduleName]
+      if (!child) {
+        throw new Error(('Missing module "' + moduleName + '" for path "' + path + '".'))
+      }
+      return i === names.length - 1 ? child : child._children
+    },
+    path === 'root' ? moduleMap : moduleMap.root._children
+  )
+}
+
+function canThrow (cb) {
+  try {
+    return cb()
+  } catch (e) {
+    return e
+  }
+}
+
+// Base data struct for store's module, package with some attribute and method
+var Module = function Module (rawModule, runtime) {
+  this.runtime = runtime
+  // Store some children item
+  this._children = Object.create(null)
+  // Store the origin module object which passed by programmer
+  this._rawModule = rawModule
+  var rawState = rawModule.state
+
+  // Store the origin module's state
+  this.state = (typeof rawState === 'function' ? rawState() : rawState) || {}
+}
+
+var prototypeAccessors$1 = { namespaced: { configurable: true } }
+
+prototypeAccessors$1.namespaced.get = function () {
+  return !!this._rawModule.namespaced
+}
+
+Module.prototype.addChild = function addChild (key, module) {
+  this._children[key] = module
+}
+
+Module.prototype.removeChild = function removeChild (key) {
+  delete this._children[key]
+}
+
+Module.prototype.getChild = function getChild (key) {
+  return this._children[key]
+}
+
+Module.prototype.hasChild = function hasChild (key) {
+  return key in this._children
+}
+
+Module.prototype.update = function update (rawModule) {
+  this._rawModule.namespaced = rawModule.namespaced
+  if (rawModule.actions) {
+    this._rawModule.actions = rawModule.actions
+  }
+  if (rawModule.mutations) {
+    this._rawModule.mutations = rawModule.mutations
+  }
+  if (rawModule.getters) {
+    this._rawModule.getters = rawModule.getters
+  }
+}
+
+Module.prototype.forEachChild = function forEachChild (fn) {
+  forEachValue(this._children, fn)
+}
+
+Module.prototype.forEachGetter = function forEachGetter (fn) {
+  if (this._rawModule.getters) {
+    forEachValue(this._rawModule.getters, fn)
+  }
+}
+
+Module.prototype.forEachAction = function forEachAction (fn) {
+  if (this._rawModule.actions) {
+    forEachValue(this._rawModule.actions, fn)
+  }
+}
+
+Module.prototype.forEachMutation = function forEachMutation (fn) {
+  if (this._rawModule.mutations) {
+    forEachValue(this._rawModule.mutations, fn)
+  }
+}
+
+Object.defineProperties(Module.prototype, prototypeAccessors$1)
+
+var ModuleCollection = function ModuleCollection (rawRootModule) {
+  // register root module (Vuex.Store options)
+  this.register([], rawRootModule, false)
+}
+
+ModuleCollection.prototype.get = function get (path) {
+  return path.reduce(function (module, key) {
+    return module.getChild(key)
+  }, this.root)
+}
+
+ModuleCollection.prototype.getNamespace = function getNamespace (path) {
+  var module = this.root
+  return path.reduce(function (namespace, key) {
+    module = module.getChild(key)
+    return namespace + (module.namespaced ? key + '/' : '')
+  }, '')
+}
+
+ModuleCollection.prototype.update = function update$1 (rawRootModule) {
+  update([], this.root, rawRootModule)
+}
+
+ModuleCollection.prototype.register = function register (path, rawModule, runtime) {
+  var this$1$1 = this
+  if (runtime === void 0) runtime = true
+
+  if ((true)) {
+    assertRawModule(path, rawModule)
+  }
+
+  var newModule = new Module(rawModule, runtime)
+  if (path.length === 0) {
+    this.root = newModule
+  } else {
+    var parent = this.get(path.slice(0, -1))
+    parent.addChild(path[path.length - 1], newModule)
+  }
+
+  // register nested modules
+  if (rawModule.modules) {
+    forEachValue(rawModule.modules, function (rawChildModule, key) {
+      this$1$1.register(path.concat(key), rawChildModule, runtime)
+    })
+  }
+}
+
+ModuleCollection.prototype.unregister = function unregister (path) {
+  var parent = this.get(path.slice(0, -1))
+  var key = path[path.length - 1]
+  var child = parent.getChild(key)
+
+  if (!child) {
+    if ((true)) {
+      console.warn(
+        "[vuex] trying to unregister module '" + key + "', which is " +
+        'not registered'
+      )
+    }
+    return
+  }
+
+  if (!child.runtime) {
+    return
+  }
+
+  parent.removeChild(key)
+}
+
+ModuleCollection.prototype.isRegistered = function isRegistered (path) {
+  var parent = this.get(path.slice(0, -1))
+  var key = path[path.length - 1]
+
+  if (parent) {
+    return parent.hasChild(key)
+  }
+
+  return false
+}
+
+function update (path, targetModule, newModule) {
+  if ((true)) {
+    assertRawModule(path, newModule)
+  }
+
+  // update target module
+  targetModule.update(newModule)
+
+  // update nested modules
+  if (newModule.modules) {
+    for (var key in newModule.modules) {
+      if (!targetModule.getChild(key)) {
+        if ((true)) {
+          console.warn(
+            "[vuex] trying to add a new module '" + key + "' on hot reloading, " +
+            'manual reload is needed'
+          )
+        }
+        return
+      }
+      update(
+        path.concat(key),
+        targetModule.getChild(key),
+        newModule.modules[key]
+      )
+    }
+  }
+}
+
+var functionAssert = {
+  assert: function (value) { return typeof value === 'function' },
+  expected: 'function'
+}
+
+var objectAssert = {
+  assert: function (value) {
+    return typeof value === 'function' ||
+    (typeof value === 'object' && typeof value.handler === 'function')
+  },
+  expected: 'function or object with "handler" function'
+}
+
+var assertTypes = {
+  getters: functionAssert,
+  mutations: functionAssert,
+  actions: objectAssert
+}
+
+function assertRawModule (path, rawModule) {
+  Object.keys(assertTypes).forEach(function (key) {
+    if (!rawModule[key]) { return }
+
+    var assertOptions = assertTypes[key]
+
+    forEachValue(rawModule[key], function (value, type) {
+      assert(
+        assertOptions.assert(value),
+        makeAssertionMessage(path, key, type, value, assertOptions.expected)
+      )
+    })
+  })
+}
+
+function makeAssertionMessage (path, key, type, value, expected) {
+  var buf = key + ' should be ' + expected + ' but "' + key + '.' + type + '"'
+  if (path.length > 0) {
+    buf += ' in module "' + (path.join('.')) + '"'
+  }
+  buf += ' is ' + (JSON.stringify(value)) + '.'
+  return buf
+}
+
+function createStore (options) {
+  return new Store(options)
+}
+
+var Store = function Store (options) {
+  var this$1$1 = this
+  if (options === void 0) options = {}
+
+  if ((true)) {
+    assert(typeof Promise !== 'undefined', 'vuex requires a Promise polyfill in this browser.')
+    assert(this instanceof Store, 'store must be called with the new operator.')
+  }
+
+  var plugins = options.plugins; if (plugins === void 0) plugins = []
+  var strict = options.strict; if (strict === void 0) strict = false
+  var devtools = options.devtools
+
+  // store internal state
+  this._committing = false
+  this._actions = Object.create(null)
+  this._actionSubscribers = []
+  this._mutations = Object.create(null)
+  this._wrappedGetters = Object.create(null)
+  this._modules = new ModuleCollection(options)
+  this._modulesNamespaceMap = Object.create(null)
+  this._subscribers = []
+  this._makeLocalGettersCache = Object.create(null)
+  this._devtools = devtools
+
+  // bind commit and dispatch to self
+  var store = this
+  var ref = this
+  var dispatch = ref.dispatch
+  var commit = ref.commit
+  this.dispatch = function boundDispatch (type, payload) {
+    return dispatch.call(store, type, payload)
+  }
+  this.commit = function boundCommit (type, payload, options) {
+    return commit.call(store, type, payload, options)
+  }
+
+  // strict mode
+  this.strict = strict
+
+  var state = this._modules.root.state
+
+  // init root module.
+  // this also recursively registers all sub-modules
+  // and collects all module getters inside this._wrappedGetters
+  installModule(this, state, [], this._modules.root)
+
+  // initialize the store state, which is responsible for the reactivity
+  // (also registers _wrappedGetters as computed properties)
+  resetStoreState(this, state)
+
+  // apply plugins
+  plugins.forEach(function (plugin) { return plugin(this$1$1) })
+}
+
+var prototypeAccessors = { state: { configurable: true } }
+
+Store.prototype.install = function install (app, injectKey) {
+  app.provide(injectKey || storeKey, this)
+  app.config.globalProperties.$store = this
+
+  // 浏览器Vue.js devTools插件 在小程序中不走此处逻辑
+  /* var useDevtools = this._devtools !== undefined
+    ? this._devtools
+    : (process.env.NODE_ENV !== 'production') || false
+
+  if (useDevtools) {
+    addDevtools(app, this)
+  } */
+}
+
+prototypeAccessors.state.get = function () {
+  return this._state.data
+}
+
+prototypeAccessors.state.set = function (v) {
+  if ((true)) {
+    assert(false, 'use store.replaceState() to explicit replace store state.')
+  }
+}
+
+Store.prototype.commit = function commit (_type, _payload, _options) {
+  var this$1$1 = this
+
+  // check object-style commit
+  var ref = unifyObjectStyle(_type, _payload, _options)
+  var type = ref.type
+  var payload = ref.payload
+  var options = ref.options
+
+  var mutation = { type: type, payload: payload }
+  var entry = this._mutations[type]
+  if (!entry) {
+    if ((true)) {
+      console.error(('[vuex] unknown mutation type: ' + type))
+    }
+    return
+  }
+  this._withCommit(function () {
+    entry.forEach(function commitIterator (handler) {
+      handler(payload)
+    })
+  })
+
+  this._subscribers
+    .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
+    .forEach(function (sub) { return sub(mutation, this$1$1.state) })
+
+  if (
+    ( true) &&
+    options && options.silent
+  ) {
+    console.warn(
+      '[vuex] mutation type: ' + type + '. Silent option has been removed. ' +
+      'Use the filter functionality in the vue-devtools'
+    )
+  }
+}
+
+Store.prototype.dispatch = function dispatch (_type, _payload) {
+  var this$1$1 = this
+
+  // check object-style dispatch
+  var ref = unifyObjectStyle(_type, _payload)
+  var type = ref.type
+  var payload = ref.payload
+
+  var action = { type: type, payload: payload }
+  var entry = this._actions[type]
+  if (!entry) {
+    if ((true)) {
+      console.error(('[vuex] unknown action type: ' + type))
+    }
+    return
+  }
+
+  try {
+    this._actionSubscribers
+      .slice() // shallow copy to prevent iterator invalidation if subscriber synchronously calls unsubscribe
+      .filter(function (sub) { return sub.before })
+      .forEach(function (sub) { return sub.before(action, this$1$1.state) })
+  } catch (e) {
+    if ((true)) {
+      console.warn('[vuex] error in before action subscribers: ')
+      console.error(e)
+    }
+  }
+
+  var result = entry.length > 1
+    ? Promise.all(entry.map(function (handler) { return handler(payload) }))
+    : entry[0](payload)
+
+  return new Promise(function (resolve, reject) {
+    result.then(function (res) {
+      try {
+        this$1$1._actionSubscribers
+          .filter(function (sub) { return sub.after })
+          .forEach(function (sub) { return sub.after(action, this$1$1.state) })
+      } catch (e) {
+        if ((true)) {
+          console.warn('[vuex] error in after action subscribers: ')
+          console.error(e)
+        }
+      }
+      resolve(res)
+    }, function (error) {
+      try {
+        this$1$1._actionSubscribers
+          .filter(function (sub) { return sub.error })
+          .forEach(function (sub) { return sub.error(action, this$1$1.state, error) })
+      } catch (e) {
+        if ((true)) {
+          console.warn('[vuex] error in error action subscribers: ')
+          console.error(e)
+        }
+      }
+      reject(error)
+    })
+  })
+}
+
+Store.prototype.subscribe = function subscribe (fn, options) {
+  return genericSubscribe(fn, this._subscribers, options)
+}
+
+Store.prototype.subscribeAction = function subscribeAction (fn, options) {
+  var subs = typeof fn === 'function' ? { before: fn } : fn
+  return genericSubscribe(subs, this._actionSubscribers, options)
+}
+
+Store.prototype.watch = function watch$1 (getter, cb, options) {
+  var this$1$1 = this
+
+  if ((true)) {
+    assert(typeof getter === 'function', 'store.watch only accepts a function.')
+  }
+  return vue.watch(function () { return getter(this$1$1.state, this$1$1.getters) }, cb, Object.assign({}, options))
+}
+
+Store.prototype.replaceState = function replaceState (state) {
+  var this$1$1 = this
+
+  this._withCommit(function () {
+    this$1$1._state.data = state
+  })
+}
+
+Store.prototype.registerModule = function registerModule (path, rawModule, options) {
+  if (options === void 0) options = {}
+
+  if (typeof path === 'string') { path = [path] }
+
+  if ((true)) {
+    assert(Array.isArray(path), 'module path must be a string or an Array.')
+    assert(path.length > 0, 'cannot register the root module by using registerModule.')
+  }
+
+  this._modules.register(path, rawModule)
+  installModule(this, this.state, path, this._modules.get(path), options.preserveState)
+  // reset store to update getters...
+  resetStoreState(this, this.state)
+}
+
+Store.prototype.unregisterModule = function unregisterModule (path) {
+  var this$1$1 = this
+
+  if (typeof path === 'string') { path = [path] }
+
+  if ((true)) {
+    assert(Array.isArray(path), 'module path must be a string or an Array.')
+  }
+
+  this._modules.unregister(path)
+  this._withCommit(function () {
+    var parentState = getNestedState(this$1$1.state, path.slice(0, -1))
+    delete parentState[path[path.length - 1]]
+  })
+  resetStore(this)
+}
+
+Store.prototype.hasModule = function hasModule (path) {
+  if (typeof path === 'string') { path = [path] }
+
+  if ((true)) {
+    assert(Array.isArray(path), 'module path must be a string or an Array.')
+  }
+
+  return this._modules.isRegistered(path)
+}
+
+Store.prototype.hotUpdate = function hotUpdate (newOptions) {
+  this._modules.update(newOptions)
+  resetStore(this, true)
+}
+
+Store.prototype._withCommit = function _withCommit (fn) {
+  var committing = this._committing
+  this._committing = true
+  fn()
+  this._committing = committing
+}
+
+Object.defineProperties(Store.prototype, prototypeAccessors)
+
+/**
+ * Reduce the code which written in Vue.js for getting the state.
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} states # Object's item can be a function which accept state and getters for param, you can do something for state and getters in it.
+ * @param {Object}
+ */
+var mapState = normalizeNamespace(function (namespace, states) {
+  var res = {}
+  if (( true) && !isValidMap(states)) {
+    console.error('[vuex] mapState: mapper parameter must be either an Array or an Object')
+  }
+  normalizeMap(states).forEach(function (ref) {
+    var key = ref.key
+    var val = ref.val
+
+    res[key] = function mappedState () {
+      var state = this.$store.state
+      var getters = this.$store.getters
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapState', namespace)
+        if (!module) {
+          return
+        }
+        state = module.context.state
+        getters = module.context.getters
+      }
+      return typeof val === 'function'
+        ? val.call(this, state, getters)
+        : state[val]
+    }
+    // mark vuex getter for devtools
+    res[key].vuex = true
+  })
+  return res
+})
+
+/**
+ * Reduce the code which written in Vue.js for committing the mutation
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} mutations # Object's item can be a function which accept `commit` function as the first param, it can accept another params. You can commit mutation and do any other things in this function. specially, You need to pass anthor params from the mapped function.
+ * @return {Object}
+ */
+var mapMutations = normalizeNamespace(function (namespace, mutations) {
+  var res = {}
+  if (( true) && !isValidMap(mutations)) {
+    console.error('[vuex] mapMutations: mapper parameter must be either an Array or an Object')
+  }
+  normalizeMap(mutations).forEach(function (ref) {
+    var key = ref.key
+    var val = ref.val
+
+    res[key] = function mappedMutation () {
+      var args = []; var len = arguments.length
+      while (len--) args[len] = arguments[len]
+
+      // Get the commit method from store
+      var commit = this.$store.commit
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapMutations', namespace)
+        if (!module) {
+          return
+        }
+        commit = module.context.commit
+      }
+      return typeof val === 'function'
+        ? val.apply(this, [commit].concat(args))
+        : commit.apply(this.$store, [val].concat(args))
+    }
+  })
+  return res
+})
+
+/**
+ * Reduce the code which written in Vue.js for getting the getters
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} getters
+ * @return {Object}
+ */
+var mapGetters = normalizeNamespace(function (namespace, getters) {
+  var res = {}
+  if (( true) && !isValidMap(getters)) {
+    console.error('[vuex] mapGetters: mapper parameter must be either an Array or an Object')
+  }
+  normalizeMap(getters).forEach(function (ref) {
+    var key = ref.key
+    var val = ref.val
+
+    // The namespace has been mutated by normalizeNamespace
+    val = namespace + val
+    res[key] = function mappedGetter () {
+      if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
+        return
+      }
+      if (( true) && !(val in this.$store.getters)) {
+        console.error(('[vuex] unknown getter: ' + val))
+        return
+      }
+      return this.$store.getters[val]
+    }
+    // mark vuex getter for devtools
+    res[key].vuex = true
+  })
+  return res
+})
+
+/**
+ * Reduce the code which written in Vue.js for dispatch the action
+ * @param {String} [namespace] - Module's namespace
+ * @param {Object|Array} actions # Object's item can be a function which accept `dispatch` function as the first param, it can accept anthor params. You can dispatch action and do any other things in this function. specially, You need to pass anthor params from the mapped function.
+ * @return {Object}
+ */
+var mapActions = normalizeNamespace(function (namespace, actions) {
+  var res = {}
+  if (( true) && !isValidMap(actions)) {
+    console.error('[vuex] mapActions: mapper parameter must be either an Array or an Object')
+  }
+  normalizeMap(actions).forEach(function (ref) {
+    var key = ref.key
+    var val = ref.val
+
+    res[key] = function mappedAction () {
+      var args = []; var len = arguments.length
+      while (len--) args[len] = arguments[len]
+
+      // get dispatch function from store
+      var dispatch = this.$store.dispatch
+      if (namespace) {
+        var module = getModuleByNamespace(this.$store, 'mapActions', namespace)
+        if (!module) {
+          return
+        }
+        dispatch = module.context.dispatch
+      }
+      return typeof val === 'function'
+        ? val.apply(this, [dispatch].concat(args))
+        : dispatch.apply(this.$store, [val].concat(args))
+    }
+  })
+  return res
+})
+
+/**
+ * Rebinding namespace param for mapXXX function in special scoped, and return them by simple object
+ * @param {String} namespace
+ * @return {Object}
+ */
+var createNamespacedHelpers = function (namespace) {
+  return ({
+    mapState: mapState.bind(null, namespace),
+    mapGetters: mapGetters.bind(null, namespace),
+    mapMutations: mapMutations.bind(null, namespace),
+    mapActions: mapActions.bind(null, namespace)
+  })
+}
+
+/**
+ * Normalize the map
+ * normalizeMap([1, 2, 3]) => [ { key: 1, val: 1 }, { key: 2, val: 2 }, { key: 3, val: 3 } ]
+ * normalizeMap({a: 1, b: 2, c: 3}) => [ { key: 'a', val: 1 }, { key: 'b', val: 2 }, { key: 'c', val: 3 } ]
+ * @param {Array|Object} map
+ * @return {Object}
+ */
+function normalizeMap (map) {
+  if (!isValidMap(map)) {
+    return []
+  }
+  return Array.isArray(map)
+    ? map.map(function (key) { return ({ key: key, val: key }) })
+    : Object.keys(map).map(function (key) { return ({ key: key, val: map[key] }) })
+}
+
+/**
+ * Validate whether given map is valid or not
+ * @param {*} map
+ * @return {Boolean}
+ */
+function isValidMap (map) {
+  return Array.isArray(map) || isObject(map)
+}
+
+/**
+ * Return a function expect two param contains namespace and map. it will normalize the namespace and then the param's function will handle the new namespace and the map.
+ * @param {Function} fn
+ * @return {Function}
+ */
+function normalizeNamespace (fn) {
+  return function (namespace, map) {
+    if (typeof namespace !== 'string') {
+      map = namespace
+      namespace = ''
+    } else if (namespace.charAt(namespace.length - 1) !== '/') {
+      namespace += '/'
+    }
+    return fn(namespace, map)
+  }
+}
+
+/**
+ * Search a special module from store by namespace. if module not exist, print error message.
+ * @param {Object} store
+ * @param {String} helper
+ * @param {String} namespace
+ * @return {Object}
+ */
+function getModuleByNamespace (store, helper, namespace) {
+  var module = store._modulesNamespaceMap[namespace]
+  if (( true) && !module) {
+    console.error(('[vuex] module namespace not found in ' + helper + '(): ' + namespace))
+  }
+  return module
+}
+
+// Credits: borrowed code from fcomb/redux-logger
+
+function createLogger (ref) {
+  if (ref === void 0) ref = {}
+  var collapsed = ref.collapsed; if (collapsed === void 0) collapsed = true
+  var filter = ref.filter; if (filter === void 0) filter = function (mutation, stateBefore, stateAfter) { return true }
+  var transformer = ref.transformer; if (transformer === void 0) transformer = function (state) { return state }
+  var mutationTransformer = ref.mutationTransformer; if (mutationTransformer === void 0) mutationTransformer = function (mut) { return mut }
+  var actionFilter = ref.actionFilter; if (actionFilter === void 0) actionFilter = function (action, state) { return true }
+  var actionTransformer = ref.actionTransformer; if (actionTransformer === void 0) actionTransformer = function (act) { return act }
+  var logMutations = ref.logMutations; if (logMutations === void 0) logMutations = true
+  var logActions = ref.logActions; if (logActions === void 0) logActions = true
+  var logger = ref.logger; if (logger === void 0) logger = console
+
+  return function (store) {
+    var prevState = deepCopy(store.state)
+
+    if (typeof logger === 'undefined') {
+      return
+    }
+
+    if (logMutations) {
+      store.subscribe(function (mutation, state) {
+        var nextState = deepCopy(state)
+
+        if (filter(mutation, prevState, nextState)) {
+          var formattedTime = getFormattedTime()
+          var formattedMutation = mutationTransformer(mutation)
+          var message = 'mutation ' + (mutation.type) + formattedTime
+
+          startMessage(logger, message, collapsed)
+          logger.log('%c prev state', 'color: #9E9E9E; font-weight: bold', transformer(prevState))
+          logger.log('%c mutation', 'color: #03A9F4; font-weight: bold', formattedMutation)
+          logger.log('%c next state', 'color: #4CAF50; font-weight: bold', transformer(nextState))
+          endMessage(logger)
+        }
+
+        prevState = nextState
+      })
+    }
+
+    if (logActions) {
+      store.subscribeAction(function (action, state) {
+        if (actionFilter(action, state)) {
+          var formattedTime = getFormattedTime()
+          var formattedAction = actionTransformer(action)
+          var message = 'action ' + (action.type) + formattedTime
+
+          startMessage(logger, message, collapsed)
+          logger.log('%c action', 'color: #03A9F4; font-weight: bold', formattedAction)
+          endMessage(logger)
+        }
+      })
+    }
+  }
+}
+
+function startMessage (logger, message, collapsed) {
+  var startMessage = collapsed
+    ? logger.groupCollapsed
+    : logger.group
+
+  // render
+  try {
+    startMessage.call(logger, message)
+  } catch (e) {
+    logger.log(message)
+  }
+}
+
+function endMessage (logger) {
+  try {
+    logger.groupEnd()
+  } catch (e) {
+    logger.log('—— log end ——')
+  }
+}
+
+function getFormattedTime () {
+  var time = new Date()
+  return (' @ ' + (pad(time.getHours(), 2)) + ':' + (pad(time.getMinutes(), 2)) + ':' + (pad(time.getSeconds(), 2)) + '.' + (pad(time.getMilliseconds(), 3)))
+}
+
+function repeat (str, times) {
+  return (new Array(times + 1)).join(str)
+}
+
+function pad (num, maxLength) {
+  return repeat('0', maxLength - num.toString().length) + num
+}
+
+var index_cjs = {
+  version: '4.0.2',
+  Store: Store,
+  storeKey: storeKey,
+  createStore: createStore,
+  useStore: useStore,
+  mapState: mapState,
+  mapMutations: mapMutations,
+  mapGetters: mapGetters,
+  mapActions: mapActions,
+  createNamespacedHelpers: createNamespacedHelpers,
+  createLogger: createLogger
+}
+
+module.exports = index_cjs
+
+
+/***/ }),
+
+/***/ 78:
+/*!***********************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/index.js ***!
+  \***********************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.setupDevtoolsPlugin = void 0;
+const env_1 = __webpack_require__(/*! ./env */ 79);
+const const_1 = __webpack_require__(/*! ./const */ 80);
+__exportStar(__webpack_require__(/*! ./api */ 81), exports);
+function setupDevtoolsPlugin(pluginDescriptor, setupFn) {
+    const hook = env_1.getDevtoolsGlobalHook();
+    if (hook) {
+        hook.emit(const_1.HOOK_SETUP, pluginDescriptor, setupFn);
+    }
+    else {
+        const target = env_1.getTarget();
+        const list = target.__VUE_DEVTOOLS_PLUGINS__ = target.__VUE_DEVTOOLS_PLUGINS__ || [];
+        list.push({
+            pluginDescriptor,
+            setupFn
+        });
+    }
+}
+exports.setupDevtoolsPlugin = setupDevtoolsPlugin;
+
+
+/***/ }),
+
+/***/ 79:
+/*!*********************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/env.js ***!
+  \*********************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(global) {
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.getTarget = exports.getDevtoolsGlobalHook = void 0;
+function getDevtoolsGlobalHook() {
+    return getTarget().__VUE_DEVTOOLS_GLOBAL_HOOK__;
+}
+exports.getDevtoolsGlobalHook = getDevtoolsGlobalHook;
+function getTarget() {
+    // @ts-ignore
+    return typeof navigator !== 'undefined'
+        ? window
+        : typeof global !== 'undefined'
+            ? global
+            : {};
+}
+exports.getTarget = getTarget;
+
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../../../../../webpack/buildin/global.js */ 9)))
+
+/***/ }),
+
+/***/ 8:
 /*!*************************************************************!*\
   !*** ./node_modules/@vue/shared/dist/shared.esm-bundler.js ***!
   \*************************************************************/
@@ -6618,7 +9372,163 @@ const getGlobalThis = () => {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./../../../webpack/buildin/global.js */ 9)))
 
 /***/ }),
-/* 9 */
+
+/***/ 80:
+/*!***********************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/const.js ***!
+  \***********************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.HOOK_SETUP = void 0;
+exports.HOOK_SETUP = 'devtools-plugin:setup';
+
+
+/***/ }),
+
+/***/ 81:
+/*!***************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/api/index.js ***!
+  \***************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !exports.hasOwnProperty(p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+__exportStar(__webpack_require__(/*! ./api */ 82), exports);
+__exportStar(__webpack_require__(/*! ./app */ 83), exports);
+__exportStar(__webpack_require__(/*! ./component */ 84), exports);
+__exportStar(__webpack_require__(/*! ./context */ 85), exports);
+__exportStar(__webpack_require__(/*! ./hooks */ 86), exports);
+__exportStar(__webpack_require__(/*! ./util */ 87), exports);
+
+
+/***/ }),
+
+/***/ 82:
+/*!*************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/api/api.js ***!
+  \*************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+/***/ }),
+
+/***/ 83:
+/*!*************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/api/app.js ***!
+  \*************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+/***/ }),
+
+/***/ 84:
+/*!*******************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/api/component.js ***!
+  \*******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+/***/ }),
+
+/***/ 85:
+/*!*****************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/api/context.js ***!
+  \*****************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+/***/ }),
+
+/***/ 86:
+/*!***************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/api/hooks.js ***!
+  \***************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+/***/ }),
+
+/***/ 87:
+/*!**************************************************************************************************!*\
+  !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@vue/devtools-api/lib/cjs/api/util.js ***!
+  \**************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+
+
+/***/ }),
+
+/***/ 88:
+/*!**********************************************************************!*\
+  !*** /Users/liufei/Documents/HBuilderProjects/wx-app/store/index.js ***!
+  \**********************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });exports.default = void 0;
+var _vuex = __webpack_require__(/*! vuex */ 77); // 引入
+var _default =
+(0, _vuex.createStore)({
+  state: {
+    system: null },
+
+  mutations: {
+    setSystem: function setSystem(state, data) {
+      state.system = data;
+    } },
+
+  actions: {},
+  modules: {} });exports.default = _default;
+
+/***/ }),
+
+/***/ 9:
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
   \***********************************/
@@ -6647,1200 +9557,7 @@ try {
 module.exports = g;
 
 
-/***/ }),
-/* 10 */
-/*!*****************************************************************!*\
-  !*** ./node_modules/@dcloudio/uni-mp-weixin/dist/uni.mp.esm.js ***!
-  \*****************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {Object.defineProperty(exports, "__esModule", { value: true });exports.createPage = exports.createComponent = exports.createApp = void 0;var _shared = __webpack_require__(/*! @vue/shared */ 8);
-var _vue = __webpack_require__(/*! vue */ 6);
-
-var encode = encodeURIComponent;
-function stringifyQuery(obj) {var encodeStr = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : encode;
-  var res = obj ?
-  Object.keys(obj).
-  map(function (key) {
-    var val = obj[key];
-    if (typeof val === undefined || val === null) {
-      val = '';
-    } else
-    if ((0, _shared.isPlainObject)(val)) {
-      val = JSON.stringify(val);
-    }
-    return encodeStr(key) + '=' + encodeStr(val);
-  }).
-  filter(function (x) {return x.length > 0;}).
-  join('&') :
-  null;
-  return res ? "?".concat(res) : '';
-}
-
-function cache(fn) {
-  var cache = Object.create(null);
-  return function (str) {
-    var hit = cache[str];
-    return hit || (cache[str] = fn(str));
-  };
-}
-var invokeArrayFns = function invokeArrayFns(fns, arg) {
-  var ret;
-  for (var i = 0; i < fns.length; i++) {
-    ret = fns[i](arg);
-  }
-  return ret;
-};
-// lifecycle
-// App and Page
-var ON_SHOW = 'onShow';
-var ON_HIDE = 'onHide';
-//App
-var ON_LAUNCH = 'onLaunch';
-var ON_ERROR = 'onError';
-var ON_THEME_CHANGE = 'onThemeChange';
-var ON_PAGE_NOT_FOUND = 'onPageNotFound';
-var ON_UNHANDLE_REJECTION = 'onUnhandledRejection';
-//Page
-var ON_LOAD = 'onLoad';
-var ON_READY = 'onReady';
-var ON_UNLOAD = 'onUnload';
-var ON_RESIZE = 'onResize';
-var ON_TAB_ITEM_TAP = 'onTabItemTap';
-var ON_REACH_BOTTOM = 'onReachBottom';
-var ON_PULL_DOWN_REFRESH = 'onPullDownRefresh';
-var ON_ADD_TO_FAVORITES = 'onAddToFavorites';
-
-var eventChannels = {};
-var eventChannelStack = [];
-function getEventChannel(id) {
-  if (id) {
-    var eventChannel = eventChannels[id];
-    delete eventChannels[id];
-    return eventChannel;
-  }
-  return eventChannelStack.shift();
-}
-
-function initBehavior(options) {
-  return Behavior(options);
-}
-function initVueIds(vueIds, mpInstance) {
-  if (!vueIds) {
-    return;
-  }
-  var ids = vueIds.split(',');
-  var len = ids.length;
-  if (len === 1) {
-    mpInstance._$vueId = ids[0];
-  } else
-  if (len === 2) {
-    mpInstance._$vueId = ids[0];
-    mpInstance._$vuePid = ids[1];
-  }
-}
-var EXTRAS = ['externalClasses'];
-function initExtraOptions(miniProgramComponentOptions, vueOptions) {
-  EXTRAS.forEach(function (name) {
-    if ((0, _shared.hasOwn)(vueOptions, name)) {
-      miniProgramComponentOptions[name] = vueOptions[name];
-    }
-  });
-}
-function initWxsCallMethods(methods, wxsCallMethods) {
-  if (!(0, _shared.isArray)(wxsCallMethods)) {
-    return;
-  }
-  wxsCallMethods.forEach(function (callMethod) {
-    methods[callMethod] = function (args) {
-      return this.$vm[callMethod](args);
-    };
-  });
-}
-function selectAllComponents(mpInstance, selector, $refs) {
-  var components = mpInstance.selectAllComponents(selector);
-  components.forEach(function (component) {
-    var ref = component.dataset.ref;
-    $refs[ref] = component.$vm || component;
-    {
-      if (component.dataset.vueGeneric === 'scoped') {
-        component.
-        selectAllComponents('.scoped-ref').
-        forEach(function (scopedComponent) {
-          selectAllComponents(scopedComponent, selector, $refs);
-        });
-      }
-    }
-  });
-}
-function initRefs(instance, mpInstance) {
-  Object.defineProperty(instance, 'refs', {
-    get: function get() {
-      var $refs = {};
-      selectAllComponents(mpInstance, '.vue-ref', $refs);
-      var forComponents = mpInstance.selectAllComponents('.vue-ref-in-for');
-      forComponents.forEach(function (component) {
-        var ref = component.dataset.ref;
-        if (!$refs[ref]) {
-          $refs[ref] = [];
-        }
-        $refs[ref].push(component.$vm || component);
-      });
-      return $refs;
-    } });
-
-}
-function findVmByVueId(instance, vuePid) {
-  // 标准 vue3 中 没有 $children，定制了内核
-  var $children = instance.$children;
-  // 优先查找直属(反向查找:https://github.com/dcloudio/uni-app/issues/1200)
-  for (var i = $children.length - 1; i >= 0; i--) {
-    var childVm = $children[i];
-    if (childVm.$scope._$vueId === vuePid) {
-      return childVm;
-    }
-  }
-  // 反向递归查找
-  var parentVm;
-  for (var _i = $children.length - 1; _i >= 0; _i--) {
-    parentVm = findVmByVueId($children[_i], vuePid);
-    if (parentVm) {
-      return parentVm;
-    }
-  }
-}
-function getTarget(obj, path) {
-  var parts = path.split('.');
-  var key = parts[0];
-  if (key.indexOf('__$n') === 0) {
-    //number index
-    key = parseInt(key.replace('__$n', ''));
-  }
-  if (!obj) {
-    obj = {};
-  }
-  if (parts.length === 1) {
-    return obj[key];
-  }
-  return getTarget(obj[key], parts.slice(1).join('.'));
-}
-
-function getValue(dataPath, target) {
-  return getTarget(target || this, dataPath);
-}
-function getClass(dynamicClass, staticClass) {
-  return renderClass(staticClass, dynamicClass);
-}
-function getStyle(dynamicStyle, staticStyle) {
-  if (!dynamicStyle && !staticStyle) {
-    return '';
-  }
-  var dynamicStyleObj = normalizeStyleBinding(dynamicStyle);
-  var styleObj = staticStyle ?
-  (0, _shared.extend)(staticStyle, dynamicStyleObj) :
-  dynamicStyleObj;
-  return Object.keys(styleObj).
-  map(function (name) {
-    return (0, _shared.hyphenate)(name) + ':' + styleObj[name];
-  }).
-  join(';');
-}
-function toObject(arr) {
-  var res = {};
-  for (var i = 0; i < arr.length; i++) {
-    if (arr[i]) {
-      (0, _shared.extend)(res, arr[i]);
-    }
-  }
-  return res;
-}
-function normalizeStyleBinding(bindingStyle) {
-  if (Array.isArray(bindingStyle)) {
-    return toObject(bindingStyle);
-  }
-  if (typeof bindingStyle === 'string') {
-    return parseStyleText(bindingStyle);
-  }
-  return bindingStyle;
-}
-var parseStyleText = cache(function parseStyleText(cssText) {
-  var res = {};
-  var listDelimiter = /;(?![^(]*\))/g;
-  var propertyDelimiter = /:(.+)/;
-  cssText.split(listDelimiter).forEach(function (item) {
-    if (item) {
-      var tmp = item.split(propertyDelimiter);
-      tmp.length > 1 && (res[tmp[0].trim()] = tmp[1].trim());
-    }
-  });
-  return res;
-});
-function isDef(v) {
-  return v !== undefined && v !== null;
-}
-function renderClass(staticClass, dynamicClass) {
-  if (isDef(staticClass) || isDef(dynamicClass)) {
-    return concat(staticClass, stringifyClass(dynamicClass));
-  }
-  /* istanbul ignore next */
-  return '';
-}
-function concat(a, b) {
-  return a ? b ? a + ' ' + b : a : b || '';
-}
-function stringifyClass(value) {
-  if (Array.isArray(value)) {
-    return stringifyArray(value);
-  }
-  if ((0, _shared.isObject)(value)) {
-    return stringifyObject(value);
-  }
-  if (typeof value === 'string') {
-    return value;
-  }
-  /* istanbul ignore next */
-  return '';
-}
-function stringifyArray(value) {
-  var res = '';
-  var stringified;
-  for (var i = 0, l = value.length; i < l; i++) {
-    if (isDef(stringified = stringifyClass(value[i])) && stringified !== '') {
-      if (res) {
-        res += ' ';
-      }
-      res += stringified;
-    }
-  }
-  return res;
-}
-function stringifyObject(value) {
-  var res = '';
-  for (var key in value) {
-    if (value[key]) {
-      if (res) {
-        res += ' ';
-      }
-      res += key;
-    }
-  }
-  return res;
-}
-
-function setModel(target, key, value, modifiers) {
-  if ((0, _shared.isArray)(modifiers)) {
-    if (modifiers.indexOf('trim') !== -1) {
-      value = value.trim();
-    }
-    if (modifiers.indexOf('number') !== -1) {
-      value = (0, _shared.toNumber)(value);
-    }
-  }
-  if (!target) {
-    target = this;
-  }
-  target[key] = value;
-}
-function setSync(target, key, value) {
-  if (!target) {
-    target = this;
-  }
-  target[key] = value;
-}
-function getOrig(data) {
-  if ((0, _shared.isPlainObject)(data)) {
-    return data.$orig || data;
-  }
-  return data;
-}
-function map(val, iteratee) {
-  var ret, i, l, keys, key;
-  if ((0, _shared.isArray)(val)) {
-    ret = new Array(val.length);
-    for (i = 0, l = val.length; i < l; i++) {
-      ret[i] = iteratee(val[i], i);
-    }
-    return ret;
-  } else
-  if ((0, _shared.isObject)(val)) {
-    keys = Object.keys(val);
-    ret = Object.create(null);
-    for (i = 0, l = keys.length; i < l; i++) {
-      key = keys[i];
-      ret[key] = iteratee(val[key], key, i);
-    }
-    return ret;
-  }
-  return [];
-}
-var MP_METHODS = [
-'createSelectorQuery',
-'createIntersectionObserver',
-'selectAllComponents',
-'selectComponent'];
-
-function createEmitFn(oldEmit, ctx) {
-  return function emit(event) {for (var _len = arguments.length, args = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {args[_key - 1] = arguments[_key];}
-    if (ctx.$scope && event) {
-      ctx.$scope.triggerEvent(event, { __args__: args });
-    }
-    return oldEmit.apply(this, [event].concat(args));
-  };
-}
-function initBaseInstance(instance, options) {
-  var ctx = instance.ctx;
-  // mp
-  ctx.mpType = options.mpType; // @deprecated
-  ctx.$mpType = options.mpType;
-  ctx.$scope = options.mpInstance;
-  // TODO @deprecated
-  ctx.$mp = {};
-  if (true) {
-    ctx._self = {};
-  }
-  // $vm
-  ctx.$scope.$vm = instance.proxy;
-  // slots
-  {
-    instance.slots = {};
-    if ((0, _shared.isArray)(options.slots) && options.slots.length) {
-      options.slots.forEach(function (name) {
-        instance.slots[name] = true;
-      });
-    }
-  }
-  ctx.getOpenerEventChannel = function () {
-    // 微信小程序使用自身getOpenerEventChannel
-    {
-      return options.mpInstance.getOpenerEventChannel();
-    }
-  };
-  ctx.$hasHook = hasHook;
-  ctx.$callHook = callHook;
-  // $emit
-  instance.emit = createEmitFn(instance.emit, ctx);
-}
-function initComponentInstance(instance, options) {
-  initBaseInstance(instance, options);
-  {
-    initScopedSlotsParams(instance);
-  }
-  var ctx = instance.ctx;
-  MP_METHODS.forEach(function (method) {
-    ctx[method] = function () {
-      var mpInstance = ctx.$scope;
-      if (mpInstance && mpInstance[method]) {for (var _len2 = arguments.length, args = new Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {args[_key2] = arguments[_key2];}
-        return mpInstance[method].apply(mpInstance, args);
-      }
-    };
-  });
-  // TODO other
-  ctx.__set_model = setModel;
-  ctx.__set_sync = setSync;
-  ctx.__get_orig = getOrig;
-  // TODO
-  ctx.__get_value = getValue;
-  ctx.__get_class = getClass;
-  ctx.__get_style = getStyle;
-  ctx.__map = map;
-}
-function initMocks(instance, mpInstance, mocks) {
-  var ctx = instance.ctx;
-  mocks.forEach(function (mock) {
-    if ((0, _shared.hasOwn)(mpInstance, mock)) {
-      ctx[mock] = mpInstance[mock];
-    }
-  });
-}
-function hasHook(name) {
-  var hooks = this.$[name];
-  if (hooks && hooks.length) {
-    return true;
-  }
-  return false;
-}
-function callHook(name, args) {
-  if (name === 'mounted') {
-    callHook.call(this, 'bm'); // beforeMount
-    this.$.isMounted = true;
-    name = 'm';
-  } else
-  if (name === 'onLoad' && args && args.__id__) {
-    this.__eventChannel__ = getEventChannel(args.__id__);
-    delete args.__id__;
-  }
-  var hooks = this.$[name];
-  return hooks && invokeArrayFns(hooks, args);
-}
-var center = {};
-var parents = {};
-function initScopedSlotsParams(instance) {
-  var ctx = instance.ctx;
-  ctx.$hasScopedSlotsParams = function (vueId) {
-    var has = center[vueId];
-    if (!has) {
-      parents[vueId] = this;
-      (0, _vue.onUnmounted)(function () {
-        delete parents[vueId];
-      }, instance);
-    }
-    return has;
-  };
-  ctx.$getScopedSlotsParams = function (vueId, name, key) {
-    var data = center[vueId];
-    if (data) {
-      var object = data[name] || {};
-      return key ? object[key] : object;
-    } else
-    {
-      parents[vueId] = this;
-      (0, _vue.onUnmounted)(function () {
-        delete parents[vueId];
-      }, instance);
-    }
-  };
-  ctx.$setScopedSlotsParams = function (name, value) {
-    var vueIds = instance.attrs.vueId;
-    if (vueIds) {
-      var vueId = vueIds.split(',')[0];
-      var object = center[vueId] = center[vueId] || {};
-      object[name] = value;
-      if (parents[vueId]) {
-        parents[vueId].$forceUpdate();
-      }
-    }
-  };
-  (0, _vue.onUnmounted)(function () {
-    var propsData = instance.attrs;
-    var vueId = propsData && propsData.vueId;
-    if (vueId) {
-      delete center[vueId];
-      delete parents[vueId];
-    }
-  }, instance);
-}
-
-var PAGE_HOOKS = [
-ON_LOAD,
-ON_SHOW,
-ON_HIDE,
-ON_UNLOAD,
-ON_RESIZE,
-ON_TAB_ITEM_TAP,
-ON_REACH_BOTTOM,
-ON_PULL_DOWN_REFRESH,
-ON_ADD_TO_FAVORITES
-// 'onReady', // lifetimes.ready
-// 'onPageScroll', // 影响性能，开发者手动注册
-// 'onShareTimeline', // 右上角菜单，开发者手动注册
-// 'onShareAppMessage' // 右上角菜单，开发者手动注册
-];
-function findHooks(vueOptions) {var hooks = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : new Set();
-  if (vueOptions) {
-    Object.keys(vueOptions).forEach(function (name) {
-      if (name.indexOf('on') === 0 && (0, _shared.isFunction)(vueOptions[name])) {
-        hooks.add(name);
-      }
-    });
-    if (true) {var
-      extendsOptions = vueOptions.extends,mixins = vueOptions.mixins;
-      if (mixins) {
-        mixins.forEach(function (mixin) {return findHooks(mixin, hooks);});
-      }
-      if (extendsOptions) {
-        findHooks(extendsOptions, hooks);
-      }
-    }
-  }
-  return hooks;
-}
-function initHook$1(mpOptions, hook, excludes) {
-  if (excludes.indexOf(hook) === -1 && !(0, _shared.hasOwn)(mpOptions, hook)) {
-    mpOptions[hook] = function (args) {
-      return this.$vm && this.$vm.$callHook(hook, args);
-    };
-  }
-}
-var EXCLUDE_HOOKS = [ON_READY];
-function initHooks(mpOptions, hooks) {var excludes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EXCLUDE_HOOKS;
-  hooks.forEach(function (hook) {return initHook$1(mpOptions, hook, excludes);});
-}
-function initUnknownHooks(mpOptions, vueOptions) {var excludes = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : EXCLUDE_HOOKS;
-  findHooks(vueOptions).forEach(function (hook) {return initHook$1(mpOptions, hook, excludes);});
-}
-
-wx.appLaunchHooks = [];
-function injectAppLaunchHooks(appInstance) {
-  wx.appLaunchHooks.forEach(function (hook) {
-    (0, _vue.injectHook)(ON_LAUNCH, hook, appInstance);
-  });
-}
-
-var HOOKS = [
-ON_SHOW,
-ON_HIDE,
-ON_ERROR,
-ON_THEME_CHANGE,
-ON_PAGE_NOT_FOUND,
-ON_UNHANDLE_REJECTION];
-
-function parseApp(instance, parseAppOptions) {
-  var internalInstance = instance.$;
-  var appOptions = {
-    globalData: instance.$options && instance.$options.globalData || {},
-    $vm: instance,
-    onLaunch: function onLaunch(options) {
-      var ctx = internalInstance.ctx;
-      if (this.$vm && ctx.$scope) {
-        // 已经初始化过了，主要是为了百度，百度 onShow 在 onLaunch 之前
-        return;
-      }
-      initBaseInstance(internalInstance, {
-        mpType: 'app',
-        mpInstance: this,
-        slots: [] });
-
-      injectAppLaunchHooks(internalInstance);
-      ctx.globalData = this.globalData;
-      instance.$callHook(ON_LAUNCH, (0, _shared.extend)({ app: this }, options));
-    } };
-
-  initLocale(instance);
-  var vueOptions = instance.$.type;
-  initHooks(appOptions, HOOKS);
-  initUnknownHooks(appOptions, vueOptions);
-  if (true) {
-    var methods = vueOptions.methods;
-    methods && (0, _shared.extend)(appOptions, methods);
-  }
-  if (parseAppOptions) {
-    parseAppOptions.parse(appOptions);
-  }
-  return appOptions;
-}
-function initCreateApp(parseAppOptions) {
-  return function createApp(vm) {
-    return App(parseApp(vm, parseAppOptions));
-  };
-}
-function initLocale(appVm) {
-  var locale = (0, _vue.ref)(uni.getSystemInfoSync().language || 'zh-Hans');
-  Object.defineProperty(appVm, '$locale', {
-    get: function get() {
-      return locale.value;
-    },
-    set: function set(v) {
-      locale.value = v;
-    } });
-
-}
-
-var PROP_TYPES = [String, Number, Boolean, Object, Array, null];
-function createObserver(name) {
-  return function observer(newVal) {
-    if (this.$vm) {
-      this.$vm.$.props[name] = newVal; // 为了触发其他非 render watcher
-    }
-  };
-}
-function parsePropType(key, type, defaultValue) {
-  // [String]=>String
-  if ((0, _shared.isArray)(type) && type.length === 1) {
-    return type[0];
-  }
-  return type;
-}
-function initDefaultProps() {var isBehavior = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : false;
-  var properties = {};
-  if (!isBehavior) {
-    properties.vueId = {
-      type: String,
-      value: '' };
-
-    // 小程序不能直接定义 $slots 的 props，所以通过 vueSlots 转换到 $slots
-    properties.vueSlots = {
-      type: null,
-      value: [],
-      observer: function observer(newVal) {
-        var $slots = Object.create(null);
-        newVal.forEach(function (slotName) {
-          $slots[slotName] = true;
-        });
-        this.setData({
-          $slots: $slots });
-
-      } };
-
-  }
-  return properties;
-}
-function createProperty(key, prop) {
-  prop.observer = createObserver(key);
-  return prop;
-}
-function initProps(mpComponentOptions, rawProps) {var isBehavior = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;
-  var properties = initDefaultProps(isBehavior);
-  if ((0, _shared.isArray)(rawProps)) {
-    rawProps.forEach(function (key) {
-      properties[key] = createProperty(key, {
-        type: null });
-
-    });
-  } else
-  if ((0, _shared.isPlainObject)(rawProps)) {
-    Object.keys(rawProps).forEach(function (key) {
-      var opts = rawProps[key];
-      if ((0, _shared.isPlainObject)(opts)) {
-        // title:{type:String,default:''}
-        var value = opts.default;
-        if ((0, _shared.isFunction)(value)) {
-          value = value();
-        }
-        var type = opts.type;
-        opts.type = parsePropType(key, type);
-        properties[key] = createProperty(key, {
-          type: PROP_TYPES.indexOf(type) !== -1 ? type : null,
-          value: value });
-
-      } else
-      {
-        // content:String
-        var _type = parsePropType(key, opts);
-        properties[key] = createProperty(key, {
-          type: PROP_TYPES.indexOf(_type) !== -1 ? _type : null });
-
-      }
-    });
-  }
-  mpComponentOptions.properties = properties;
-}
-
-function initData(vueOptions) {
-  var data = vueOptions.data || {};
-  if (typeof data === 'function') {
-    try {
-      var appConfig = getApp().$vm.$.appContext.config;
-      data = data.call(appConfig.globalProperties);
-    }
-    catch (e) {
-      if (Object({"NODE_ENV":"development","VUE_APP_NAME":"wx-app","VUE_APP_PLATFORM":"mp-weixin","BASE_URL":"/"}).VUE_APP_DEBUG) {
-        console.warn('根据 Vue 的 data 函数初始化小程序 data 失败，请尽量确保 data 函数中不访问 vm 对象，否则可能影响首次数据渲染速度。', data, e);
-      }
-    }
-  } else
-  {
-    try {
-      // 对 data 格式化
-      data = JSON.parse(JSON.stringify(data));
-    }
-    catch (e) {}
-  }
-  if (!(0, _shared.isPlainObject)(data)) {
-    data = {};
-  }
-  return data;
-}
-function initBehaviors(vueOptions, initBehavior) {
-  var vueBehaviors = vueOptions.behaviors;
-  var vueExtends = vueOptions.extends;
-  var vueMixins = vueOptions.mixins;
-  var vueProps = vueOptions.props;
-  if (!vueProps) {
-    vueOptions.props = vueProps = [];
-  }
-  var behaviors = [];
-  if ((0, _shared.isArray)(vueBehaviors)) {
-    vueBehaviors.forEach(function (behavior) {
-      behaviors.push(behavior.replace('uni://', "".concat(__PLATFORM_PREFIX__, "://")));
-      if (behavior === 'uni://form-field') {
-        if ((0, _shared.isArray)(vueProps)) {
-          vueProps.push('name');
-          vueProps.push('value');
-        } else
-        {
-          vueProps.name = {
-            type: String,
-            default: '' };
-
-          vueProps.value = {
-            type: [String, Number, Boolean, Array, Object, Date],
-            default: '' };
-
-        }
-      }
-    });
-  }
-  if (vueExtends && vueExtends.props) {
-    var behavior = {};
-    initProps(behavior, vueExtends.props, true);
-    behaviors.push(initBehavior(behavior));
-  }
-  if ((0, _shared.isArray)(vueMixins)) {
-    vueMixins.forEach(function (vueMixin) {
-      if (vueMixin.props) {
-        var _behavior = {};
-        initProps(_behavior, vueMixin.props, true);
-        behaviors.push(initBehavior(_behavior));
-      }
-    });
-  }
-  return behaviors;
-}
-function applyOptions(componentOptions, vueOptions, initBehavior) {
-  componentOptions.data = initData(vueOptions);
-  componentOptions.behaviors = initBehaviors(vueOptions, initBehavior);
-}
-
-function getExtraValue(instance, dataPathsArray) {
-  var context = instance;
-  dataPathsArray.forEach(function (dataPathArray) {
-    var dataPath = dataPathArray[0];
-    var value = dataPathArray[2];
-    if (dataPath || typeof value !== 'undefined') {
-      // ['','',index,'disable']
-      var propPath = dataPathArray[1];
-      var valuePath = dataPathArray[3];
-      var vFor;
-      if (Number.isInteger(dataPath)) {
-        vFor = dataPath;
-      } else
-      if (!dataPath) {
-        vFor = context;
-      } else
-      if (typeof dataPath === 'string' && dataPath) {
-        if (dataPath.indexOf('#s#') === 0) {
-          vFor = dataPath.substr(3);
-        } else
-        {
-          vFor = getTarget(context, dataPath);
-        }
-      }
-      if (Number.isInteger(vFor)) {
-        context = value;
-      } else
-      if (!propPath) {
-        context = vFor[value];
-      } else
-      {
-        if ((0, _shared.isArray)(vFor)) {
-          context = vFor.find(function (vForItem) {
-            return getTarget(vForItem, propPath) === value;
-          });
-        } else
-        if ((0, _shared.isPlainObject)(vFor)) {
-          context = Object.keys(vFor).find(function (vForKey) {
-            return getTarget(vFor[vForKey], propPath) === value;
-          });
-        } else
-        {
-          console.error('v-for 暂不支持循环数据：', vFor);
-        }
-      }
-      if (valuePath) {
-        context = getTarget(context, valuePath);
-      }
-    }
-  });
-  return context;
-}
-function processEventExtra(instance, extra, event) {
-  var extraObj = {};
-  if ((0, _shared.isArray)(extra) && extra.length) {
-    /**
-                                                     *[
-                                                     *    ['data.items', 'data.id', item.data.id],
-                                                     *    ['metas', 'id', meta.id]
-                                                     *],
-                                                     *[
-                                                     *    ['data.items', 'data.id', item.data.id],
-                                                     *    ['metas', 'id', meta.id]
-                                                     *],
-                                                     *'test'
-                                                     */
-    extra.forEach(function (dataPath, index) {
-      if (typeof dataPath === 'string') {
-        if (!dataPath) {
-          // model,prop.sync
-          extraObj['$' + index] = instance;
-        } else
-        {
-          if (dataPath === '$event') {
-            // $event
-            extraObj['$' + index] = event;
-          } else
-          if (dataPath === 'arguments') {
-            if (event.detail && event.detail.__args__) {
-              extraObj['$' + index] = event.detail.__args__;
-            } else
-            {
-              extraObj['$' + index] = [event];
-            }
-          } else
-          if (dataPath.indexOf('$event.') === 0) {
-            // $event.target.value
-            extraObj['$' + index] = getTarget(event, dataPath.replace('$event.', ''));
-          } else
-          {
-            extraObj['$' + index] = getTarget(instance, dataPath);
-          }
-        }
-      } else
-      {
-        extraObj['$' + index] = getExtraValue(instance, dataPath);
-      }
-    });
-  }
-  return extraObj;
-}
-function getObjByArray(arr) {
-  var obj = {};
-  for (var i = 1; i < arr.length; i++) {
-    var element = arr[i];
-    obj[element[0]] = element[1];
-  }
-  return obj;
-}
-function processEventArgs(instance, event) {var args = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : [];var extra = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : [];var isCustom = arguments.length > 4 ? arguments[4] : undefined;var methodName = arguments.length > 5 ? arguments[5] : undefined;
-  var isCustomMPEvent = false; // wxcomponent 组件，传递原始 event 对象
-  if (isCustom) {
-    // 自定义事件
-    isCustomMPEvent =
-    event.currentTarget &&
-    event.currentTarget.dataset &&
-    event.currentTarget.dataset.comType === 'wx';
-    if (!args.length) {
-      // 无参数，直接传入 event 或 detail 数组
-      if (isCustomMPEvent) {
-        return [event];
-      }
-      return event.detail.__args__ || event.detail;
-    }
-  }
-  var extraObj = processEventExtra(instance, extra, event);
-  var ret = [];
-  args.forEach(function (arg) {
-    if (arg === '$event') {
-      if (methodName === '__set_model' && !isCustom) {
-        // input v-model value
-        ret.push(event.target.value);
-      } else
-      {
-        if (isCustom && !isCustomMPEvent) {
-          ret.push(event.detail.__args__[0]);
-        } else
-        {
-          // wxcomponent 组件或内置组件
-          ret.push(event);
-        }
-      }
-    } else
-    {
-      if ((0, _shared.isArray)(arg) && arg[0] === 'o') {
-        ret.push(getObjByArray(arg));
-      } else
-      if (typeof arg === 'string' && (0, _shared.hasOwn)(extraObj, arg)) {
-        ret.push(extraObj[arg]);
-      } else
-      {
-        ret.push(arg);
-      }
-    }
-  });
-  return ret;
-}
-function wrapper(event) {
-  event.stopPropagation = _shared.NOOP;
-  event.preventDefault = _shared.NOOP;
-  event.target = event.target || {};
-  if (!(0, _shared.hasOwn)(event, 'detail')) {
-    event.detail = {};
-  }
-  if ((0, _shared.hasOwn)(event, 'markerId')) {
-    event.detail = typeof event.detail === 'object' ? event.detail : {};
-    event.detail.markerId = event.markerId;
-  }
-  if ((0, _shared.isPlainObject)(event.detail)) {
-    event.target = (0, _shared.extend)({}, event.target, event.detail);
-  }
-  return event;
-}
-var ONCE = '~';
-var CUSTOM = '^';
-function matchEventType(eventType, optType) {
-  return eventType === optType ||
-  optType === 'regionchange' && (
-  eventType === 'begin' || eventType === 'end');
-}
-function handleEvent(event) {var _this = this;
-  event = wrapper(event);
-  // [['tap',[['handle',[1,2,a]],['handle1',[1,2,a]]]]]
-  var dataset = (event.currentTarget || event.target).dataset;
-  if (!dataset) {
-    return console.warn('事件信息不存在');
-  }
-  var eventOpts = dataset.eventOpts ||
-  dataset['event-opts']; // 支付宝 web-view 组件 dataset 非驼峰
-  if (!eventOpts) {
-    return console.warn('事件信息不存在');
-  }
-  // [['handle',[1,2,a]],['handle1',[1,2,a]]]
-  var eventType = event.type;
-  var ret = [];
-  eventOpts.forEach(function (eventOpt) {
-    var type = eventOpt[0];
-    var eventsArray = eventOpt[1];
-    var isCustom = type.charAt(0) === CUSTOM;
-    type = isCustom ? type.slice(1) : type;
-    var isOnce = type.charAt(0) === ONCE;
-    type = isOnce ? type.slice(1) : type;
-    if (eventsArray && matchEventType(eventType, type)) {
-      eventsArray.forEach(function (eventArray) {
-        var methodName = eventArray[0];
-        if (methodName) {
-          var handlerCtx = _this.$vm;
-          if (handlerCtx.$options.generic &&
-          handlerCtx.$parent &&
-          handlerCtx.$parent.$parent) {
-            // mp-weixin,mp-toutiao 抽象节点模拟 scoped slots
-            handlerCtx = handlerCtx.$parent.$parent;
-          }
-          if (methodName === '$emit') {
-            handlerCtx.$emit.apply(handlerCtx, processEventArgs(_this.$vm, event, eventArray[1], eventArray[2], isCustom, methodName));
-            return;
-          }
-          var handler = handlerCtx[methodName];
-          if (!(0, _shared.isFunction)(handler)) {
-            throw new Error(" _vm.".concat(methodName, " is not a function"));
-          }
-          if (isOnce) {
-            if (handler.once) {
-              return;
-            }
-            handler.once = true;
-          }
-          var params = processEventArgs(_this.$vm, event, eventArray[1], eventArray[2], isCustom, methodName);
-          params = Array.isArray(params) ? params : [];
-          // 参数尾部增加原始事件对象用于复杂表达式内获取额外数据
-          if (/=\s*\S+\.eventParams\s*\|\|\s*\S+\[['"]event-params['"]\]/.test(handler.toString())) {
-            // eslint-disable-next-line no-sparse-arrays
-            params = params.concat([,,,,,,,,,, event]);
-          }
-          ret.push(handler.apply(handlerCtx, params));
-        }
-      });
-    }
-  });
-  if (eventType === 'input' &&
-  ret.length === 1 &&
-  typeof ret[0] !== 'undefined') {
-    return ret[0];
-  }
-}
-
-function parseComponent(vueOptions, _ref) {var parse = _ref.parse,mocks = _ref.mocks,isPage = _ref.isPage,initRelation = _ref.initRelation,handleLink = _ref.handleLink,initLifetimes = _ref.initLifetimes;
-  vueOptions = vueOptions.default || vueOptions;
-  var options = {
-    multipleSlots: true,
-    addGlobalClass: true };
-
-  if (vueOptions.options) {
-    (0, _shared.extend)(options, vueOptions.options);
-  }
-  var mpComponentOptions = {
-    options: options,
-    lifetimes: initLifetimes({ mocks: mocks, isPage: isPage, initRelation: initRelation, vueOptions: vueOptions }),
-    pageLifetimes: {
-      show: function show() {
-        this.$vm && this.$vm.$callHook('onPageShow');
-      },
-      hide: function hide() {
-        this.$vm && this.$vm.$callHook('onPageHide');
-      },
-      resize: function resize(size) {
-        this.$vm && this.$vm.$callHook('onPageResize', size);
-      } },
-
-    methods: {
-      __l: handleLink,
-      __e: handleEvent } };
-
-
-  if (true) {
-    applyOptions(mpComponentOptions, vueOptions, initBehavior);
-  }
-  initProps(mpComponentOptions, vueOptions.props, false);
-  initExtraOptions(mpComponentOptions, vueOptions);
-  initWxsCallMethods(mpComponentOptions.methods, vueOptions.wxsCallMethods);
-  if (parse) {
-    parse(mpComponentOptions, { handleLink: handleLink });
-  }
-  return mpComponentOptions;
-}
-function initCreateComponent(parseOptions) {
-  return function createComponent(vueComponentOptions) {
-    return Component(parseComponent(vueComponentOptions, parseOptions));
-  };
-}
-var $createComponentFn;
-var $destroyComponentFn;
-function $createComponent(initialVNode, options) {
-  if (!$createComponentFn) {
-    $createComponentFn = getApp().$vm.$createComponent;
-  }
-  return $createComponentFn(initialVNode, options);
-}
-function $destroyComponent(instance) {
-  if (!$destroyComponentFn) {
-    $destroyComponentFn = getApp().$vm.$destroyComponent;
-  }
-  return $destroyComponentFn(instance);
-}
-
-function parsePage(vueOptions, parseOptions) {var
-  parse = parseOptions.parse,mocks = parseOptions.mocks,isPage = parseOptions.isPage,initRelation = parseOptions.initRelation,handleLink = parseOptions.handleLink,initLifetimes = parseOptions.initLifetimes;
-  var miniProgramPageOptions = parseComponent(vueOptions, {
-    mocks: mocks,
-    isPage: isPage,
-    initRelation: initRelation,
-    handleLink: handleLink,
-    initLifetimes: initLifetimes });
-
-  var methods = miniProgramPageOptions.methods;
-  methods.onLoad = function (query) {
-    this.options = query;
-    this.$page = {
-      fullPath: '/' + this.route + stringifyQuery(query) };
-
-    return this.$vm && this.$vm.$callHook(ON_LOAD, query);
-  };
-  initHooks(methods, PAGE_HOOKS);
-  initUnknownHooks(methods, vueOptions);
-  parse && parse(miniProgramPageOptions, { handleLink: handleLink });
-  return miniProgramPageOptions;
-}
-function initCreatePage(parseOptions) {
-  return function createPage(vuePageOptions) {
-    return Component(parsePage(vuePageOptions, parseOptions));
-  };
-}
-
-var MPPage = Page;
-var MPComponent = Component;
-var customizeRE = /:/g;
-function customize(str) {
-  return (0, _shared.camelize)(str.replace(customizeRE, '-'));
-}
-function initTriggerEvent(mpInstance) {
-  var oldTriggerEvent = mpInstance.triggerEvent;
-  mpInstance.triggerEvent = function (event) {for (var _len3 = arguments.length, args = new Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {args[_key3 - 1] = arguments[_key3];}
-    return oldTriggerEvent.apply(mpInstance, [customize(event)].concat(args));
-  };
-}
-function initHook(name, options) {
-  var oldHook = options[name];
-  if (!oldHook) {
-    options[name] = function () {
-      initTriggerEvent(this);
-    };
-  } else
-  {
-    options[name] = function () {
-      initTriggerEvent(this);for (var _len4 = arguments.length, args = new Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {args[_key4] = arguments[_key4];}
-      return oldHook.apply(this, args);
-    };
-  }
-}
-Page = function Page(options) {
-  initHook(ON_LOAD, options);
-  return MPPage(options);
-};
-Component = function Component(options) {
-  initHook('created', options);
-  return MPComponent(options);
-};
-
-function initLifetimes(_ref2) {var mocks = _ref2.mocks,isPage = _ref2.isPage,initRelation = _ref2.initRelation,vueOptions = _ref2.vueOptions;
-  return {
-    attached: function attached() {
-      var properties = this.properties;
-      initVueIds(properties.vueId, this);
-      var relationOptions = {
-        vuePid: this._$vuePid };
-
-      // 处理父子关系
-      initRelation(this, relationOptions);
-      // 初始化 vue 实例
-      var mpInstance = this;
-      this.$vm = $createComponent({
-        type: vueOptions,
-        props: properties },
-      {
-        mpType: isPage(mpInstance) ? 'page' : 'component',
-        mpInstance: mpInstance,
-        slots: properties.vueSlots,
-        parentComponent: relationOptions.parent && relationOptions.parent.$,
-        onBeforeSetup: function onBeforeSetup(instance, options) {
-          initRefs(instance, mpInstance);
-          initMocks(instance, mpInstance, mocks);
-          initComponentInstance(instance, options);
-        } });
-
-    },
-    ready: function ready() {
-      // 当组件 props 默认值为 true，初始化时传入 false 会导致 created,ready 触发, 但 attached 不触发
-      // https://developers.weixin.qq.com/community/develop/doc/00066ae2844cc0f8eb883e2a557800
-      if (this.$vm) {
-        this.$vm.$callHook('mounted');
-        this.$vm.$callHook(ON_READY);
-      }
-    },
-    detached: function detached() {
-      this.$vm && $destroyComponent(this.$vm);
-    } };
-
-}
-
-var mocks = ['__route__', '__wxExparserNodeId__', '__wxWebviewId__'];
-function isPage(mpInstance) {
-  return !!mpInstance.route;
-}
-function initRelation(mpInstance, detail) {
-  mpInstance.triggerEvent('__l', detail);
-}
-function handleLink(event) {
-  // detail 是微信,value 是百度(dipatch)
-  var detail = event.detail ||
-  event.value;
-  var vuePid = detail.vuePid;
-  var parentVm;
-  if (vuePid) {
-    parentVm = findVmByVueId(this.$vm, vuePid);
-  }
-  if (!parentVm) {
-    parentVm = this.$vm;
-  }
-  detail.parent = parentVm;
-}
-
-var parseOptions = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  mocks: mocks,
-  isPage: isPage,
-  initRelation: initRelation,
-  handleLink: handleLink,
-  initLifetimes: initLifetimes });
-
-
-var createApp = initCreateApp();exports.createApp = createApp;
-var createPage = initCreatePage(parseOptions);exports.createPage = createPage;
-var createComponent = initCreateComponent(parseOptions);exports.createComponent = createComponent;
-wx.createApp = createApp;
-wx.createPage = createPage;
-wx.createComponent = createComponent;
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! @dcloudio/uni-mp-weixin/dist/uni.api.esm.js */ 7)["default"]))
-
 /***/ })
-]]);
+
+}]);
 //# sourceMappingURL=../../.sourcemap/mp-weixin/common/vendor.js.map
