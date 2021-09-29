@@ -96,6 +96,11 @@
 			border-bottom: 1px solid #DEDEDE;
 
 		}
+		button{
+			border: none;
+			background-color: #007AFF;
+			color: #FFFFFF;
+		}
 	}
 }
 </style>
