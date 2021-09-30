@@ -8,8 +8,17 @@
 	right: 0;
 }
 
+.container.data-v-4aee1b54 {
+  background-color: #FFFFFF;
+}
 
-.container{
-	background-color: #007AFF;
+.container.data-v-57280228 {
+  background-color: #007AFF;
+}
+.container .map-container.data-v-57280228 {
+  background-color: #FFFFFF;
+}
+.container .tabs-container.data-v-57280228 {
+  background-color: #FFFFFF;
 }
 

@@ -1,13 +1,15 @@
 <template>
-	<uni-swiper-dot :info="info" :current="current" field="content" :mode="mode">
-	    <swiper class="swiper-box" @change="change">
-	        <swiper-item v-for="(item ,index) in info" :key="index">
-	            <view class="swiper-item">
-	                {{item.content}}
-	            </view>
-	        </swiper-item>
-	    </swiper>
-	</uni-swiper-dot>
+	<view class="container">
+		<uni-swiper-dot :info="info" :current="current" field="content" :mode="mode">
+		    <swiper class="swiper-box" @change="change">
+		        <swiper-item v-for="(item ,index) in info" :key="index">
+		            <view class="swiper-item">
+		                {{item.content}}
+		            </view>
+		        </swiper-item>
+		    </swiper>
+		</uni-swiper-dot>
+	</view>
 </template>
 
 <script lang="ts">
@@ -40,6 +42,8 @@
 	}
 </script>
 
-<style>
-
+<style scoped lang="less">
+.container{
+	background-color: #FFFFFF;
+}
 </style>

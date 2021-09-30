@@ -5,8 +5,8 @@
   "navigationBarTextStyle": "white",
   "usingComponents": {
     "uni-tabs": "/components/uni-tabs/uni-tabs",
-    "v-header": "/components/Header/Header",
     "uni-map": "/components/uni-map/uni-map",
+    "v-header": "/components/Header/Header",
     "uni-tab1": "/components/uni-tabs/tab1/tab1",
     "uni-tab2": "/components/uni-tabs/tab2/tab2"
   }

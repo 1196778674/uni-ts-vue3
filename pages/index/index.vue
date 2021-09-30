@@ -3,10 +3,10 @@
 		<view style="width: 60%;">
 			<uni-tabs :tabData="state.tabs" :activeIndex="state.defaultIndex" @tabClick="tabClick"></uni-tabs>
 		</view>
-		<view>
-			<!-- <uni-map></uni-map> -->
+		<view class="map-container">
+			<uni-map></uni-map>
 		</view>
-		<view class="">
+		<view class="tabs-container">
 			<uni-tab1 v-if="!state.defaultIndex"></uni-tab1>
 			<uni-tab2 v-else></uni-tab2>
 		</view>
@@ -105,8 +105,14 @@
 	})
 </script>
 
-<style>
+<style scoped lang="less">
 	.container{
 		background-color: #007AFF;
+		.map-container{
+			background-color: #FFFFFF;
+		}
+		.tabs-container{
+			background-color: #FFFFFF;
+		}
 	}
 </style>
