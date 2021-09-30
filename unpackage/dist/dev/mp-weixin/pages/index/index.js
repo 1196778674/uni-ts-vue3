@@ -207,7 +207,7 @@ var _Header = _interopRequireDefault(__webpack_require__(/*! ../../components/He
         },
         fail: function fail(err) {
           console.log(err);
-          toLogin();
+          // toLogin();
         } });
 
     });
