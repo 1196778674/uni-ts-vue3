@@ -6,15 +6,22 @@
 		<view>
 			<!-- <uni-map></uni-map> -->
 		</view>
+		<view class="">
+			<uni-tab1 v-if="!state.defaultIndex"></uni-tab1>
+			<uni-tab2 v-else></uni-tab2>
+		</view>
 	</view>
 </template>
 
 <script lang="ts">
 	import { defineComponent, reactive, onBeforeMount } from 'vue';
 	import $store from '../../store/index.js'
+	// 组件
 	import VHeader from "../../components/Header/Header"
 	import UniTabs from '../../components/uni-tabs/uni-tabs.vue'
 	import UniMap from '../../components/uni-map/uni-map.vue'
+	import UniTab1 from '../../components/uni-tabs/tab1/tab1.vue'
+	import UniTab2 from '../../components/uni-tabs/tab2/tab2.vue'
 
 	interface ITabs {
 		name: string 
@@ -29,7 +36,9 @@
 		components: {
 			VHeader,
 			UniTabs,
-			UniMap
+			UniMap,
+			UniTab1,
+			UniTab2
 		},
 		setup(props){
 			const state = reactive<IState>({
@@ -42,8 +51,8 @@
 				defaultIndex: 0
 			}) 
 			
-			const tabClick = (current) => {
-				console.log(current)
+			const tabClick = (current: number) : void => {
+				state.defaultIndex = current
 			}
 			
 			// 获取用户信息
